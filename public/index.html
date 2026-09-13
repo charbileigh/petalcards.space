@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en" data-theme="pink">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Petalcards — a calm, private place to make and study flashcards.">
+    <meta name="theme-color" content="#fff8fb">
+    <title>Petalcards</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/app.js" type="module"></script>
+  </head>
+  <body>
+    <div class="ambient ambient-one" aria-hidden="true"></div>
+    <div class="ambient ambient-two" aria-hidden="true"></div>
+
+    <div id="boot-screen" class="boot-screen">
+      <div class="brand-mark brand-mark-large" aria-hidden="true"><span></span></div>
+      <p>Opening your cards…</p>
+    </div>
+
+    <main id="landing-view" class="landing hidden">
+      <section class="landing-copy">
+        <a class="brand landing-brand" href="/" aria-label="Petalcards home">
+          <span class="brand-mark" aria-hidden="true"><span></span></span>
+          <span>petalcards</span>
+        </a>
+        <div class="hero-copy">
+          <span class="eyebrow"><span class="eyebrow-dot"></span> Learn softly. Remember deeply.</span>
+          <h1>Grow what<br>you <em>know.</em></h1>
+          <p>Create beautiful flashcards, review at the right moment, and keep every little breakthrough in one calm place.</p>
+          <div class="hero-points" aria-label="Features">
+            <span><b>✓</b> Private accounts</span>
+            <span><b>✓</b> Spaced review</span>
+            <span><b>✓</b> CSV &amp; JSON export</span>
+          </div>
+        </div>
+        <div class="sample-stack" aria-hidden="true">
+          <div class="sample-card sample-back"></div>
+          <div class="sample-card sample-middle"></div>
+          <div class="sample-card sample-front">
+            <span class="sample-label">A little question</span>
+            <p>What will you remember today?</p>
+            <span class="sample-hint">tap to reveal · ✿</span>
+          </div>
+        </div>
+        <p class="landing-note">Your data lives on your own server.</p>
+      </section>
+
+      <section class="auth-side" aria-labelledby="auth-heading">
+        <div class="mobile-brand">
+          <span class="brand-mark" aria-hidden="true"><span></span></span>
+          <span>petalcards</span>
+        </div>
+        <div class="auth-card">
+          <div class="auth-heading">
+            <span class="mini-bloom" aria-hidden="true">✿</span>
+            <h2 id="auth-heading">Welcome back</h2>
+            <p id="auth-subtitle">Your next study session is waiting.</p>
+          </div>
+          <div class="auth-tabs" role="tablist" aria-label="Account action">
+            <button id="login-tab" class="auth-tab active" type="button" role="tab" aria-selected="true">Sign in</button>
+            <button id="register-tab" class="auth-tab" type="button" role="tab" aria-selected="false">Create account</button>
+          </div>
+
+          <form id="login-form" class="auth-form">
+            <label>
+              <span>Email address</span>
+              <input name="email" type="email" autocomplete="email" placeholder="you@example.com" required maxlength="254">
+            </label>
+            <label>
+              <span>Password</span>
+              <input name="password" type="password" autocomplete="current-password" placeholder="Your password" required minlength="8" maxlength="128">
+            </label>
+            <button class="button button-primary button-wide" type="submit">
+              <span>Sign in</span><span aria-hidden="true">→</span>
+            </button>
+          </form>
+
+          <form id="register-form" class="auth-form hidden">
+            <label>
+              <span>Your name</span>
+              <input name="name" type="text" autocomplete="name" placeholder="How should we greet you?" required maxlength="60">
+            </label>
+            <label>
+              <span>Email address</span>
+              <input name="email" type="email" autocomplete="email" placeholder="you@example.com" required maxlength="254">
+            </label>
+            <label>
+              <span>Password</span>
+              <input name="password" type="password" autocomplete="new-password" placeholder="At least 8 characters" required minlength="8" maxlength="128">
+            </label>
+            <button class="button button-primary button-wide" type="submit">
+              <span>Create my space</span><span aria-hidden="true">→</span>
+            </button>
+          </form>
+          <p class="auth-footnote">No ads. No tracking. Just your cards.</p>
+        </div>
+      </section>
+    </main>
+
+    <div id="app-shell" class="app-shell hidden">
+      <header class="topbar">
+        <button class="brand brand-button" type="button" data-action="dashboard" aria-label="Go to dashboard">
+          <span class="brand-mark" aria-hidden="true"><span></span></span>
+          <span>petalcards</span>
+        </button>
+        <div class="global-search">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.35-4.35m2.35-5.65a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z"/></svg>
+          <input id="deck-search" type="search" placeholder="Search your decks…" aria-label="Search your decks">
+          <kbd>/</kbd>
+        </div>
+        <nav class="top-actions" aria-label="Account and appearance">
+          <details id="theme-menu" class="theme-menu">
+            <summary class="icon-button" aria-label="Choose a theme" title="Choose a theme">
+              <span class="theme-orb"></span>
+            </summary>
+            <div class="theme-popover">
+              <p>Choose your mood</p>
+              <div class="theme-options">
+                <button type="button" data-theme-choice="pink"><span class="swatch swatch-pink"></span><span>Petal light</span><b>✓</b></button>
+                <button type="button" data-theme-choice="purple"><span class="swatch swatch-purple"></span><span>Violet night</span><b>✓</b></button>
+                <button type="button" data-theme-choice="blue"><span class="swatch swatch-blue"></span><span>Ocean night</span><b>✓</b></button>
+                <button type="button" data-theme-choice="green"><span class="swatch swatch-green"></span><span>Forest night</span><b>✓</b></button>
+                <button type="button" data-theme-choice="berry"><span class="swatch swatch-berry"></span><span>Berry night</span><b>✓</b></button>
+                <button type="button" data-theme-choice="grey"><span class="swatch swatch-grey"></span><span>Slate night</span><b>✓</b></button>
+              </div>
+            </div>
+          </details>
+          <button id="settings-button" class="avatar-button" type="button" data-action="settings" aria-label="Open account settings">
+            <span id="user-avatar">P</span>
+            <span class="avatar-copy"><b id="user-name-short">Petal</b><small>My account</small></span>
+            <span aria-hidden="true">⌄</span>
+          </button>
+        </nav>
+      </header>
+
+      <main id="dashboard-view" class="view dashboard-view">
+        <div class="content-wrap">
+          <section class="welcome-row">
+            <div>
+              <span class="eyebrow"><span class="eyebrow-dot"></span> Your learning garden</span>
+              <h1>Good <span id="time-greeting">morning</span>, <em id="greeting-name">friend</em>.</h1>
+              <p>Pick up where you left off, or plant something new.</p>
+            </div>
+            <button class="button button-primary" type="button" data-action="new-deck"><span aria-hidden="true">＋</span> New deck</button>
+          </section>
+
+          <section class="stat-grid" aria-label="Study summary">
+            <article class="stat-card stat-rose"><span class="stat-icon">▤</span><div><strong id="stat-decks">0</strong><span>Decks</span></div><small>collections</small></article>
+            <article class="stat-card stat-peach"><span class="stat-icon">◇</span><div><strong id="stat-cards">0</strong><span>Cards</span></div><small>ideas saved</small></article>
+            <article class="stat-card stat-lilac"><span class="stat-icon">◷</span><div><strong id="stat-due">0</strong><span>Due now</span></div><small>ready to review</small></article>
+            <article class="stat-card stat-mint"><span class="stat-icon">↗</span><div><strong id="stat-mastery">0%</strong><span>Mastery</span></div><small>long-term</small></article>
+          </section>
+
+          <section class="decks-section">
+            <div class="section-heading">
+              <div><span class="section-kicker">YOUR COLLECTIONS</span><h2>All decks</h2></div>
+              <span id="deck-count-label" class="soft-pill">0 decks</span>
+            </div>
+            <div id="deck-grid" class="deck-grid"></div>
+            <div id="empty-decks" class="empty-state hidden">
+              <div class="empty-flower" aria-hidden="true">✿</div>
+              <h3>Plant your first deck</h3>
+              <p>Add a few cards and your learning garden will start to grow.</p>
+              <button class="button button-primary" type="button" data-action="new-deck">Create a deck</button>
+            </div>
+            <div id="no-search-results" class="empty-state compact hidden">
+              <div class="empty-flower" aria-hidden="true">⌕</div>
+              <h3>No matching decks</h3>
+              <p>Try a different word or clear your search.</p>
+            </div>
+          </section>
+        </div>
+      </main>
+
+      <main id="deck-view" class="view hidden">
+        <div class="content-wrap narrow">
+          <button class="back-button" type="button" data-action="dashboard">← <span>All decks</span></button>
+          <section id="deck-hero" class="deck-hero"></section>
+          <section class="cards-section">
+            <div class="section-heading">
+              <div><span class="section-kicker">CARD LIBRARY</span><h2>Cards</h2></div>
+              <button class="button button-secondary" type="button" data-action="new-card"><span aria-hidden="true">＋</span> Add card</button>
+            </div>
+            <div id="card-list" class="card-list"></div>
+            <div id="empty-cards" class="empty-state hidden">
+              <div class="empty-flower" aria-hidden="true">◇</div>
+              <h3>This deck is waiting</h3>
+              <p>Add a question and answer, then you can start studying.</p>
+              <button class="button button-primary" type="button" data-action="new-card">Add the first card</button>
+            </div>
+          </section>
+        </div>
+      </main>
+
+      <main id="study-view" class="view study-view hidden">
+        <div class="study-wrap">
+          <header class="study-header">
+            <button class="back-button" type="button" data-action="exit-study">← <span>Back to deck</span></button>
+            <div class="study-title"><span id="study-deck-name">Deck</span><small id="study-counter">1 of 1</small></div>
+            <button class="icon-button" type="button" data-action="exit-study" aria-label="Close study session">×</button>
+          </header>
+          <div class="study-progress"><progress id="study-progress-bar" max="100" value="0" aria-label="Study progress"></progress></div>
+          <section id="study-stage" class="study-stage"></section>
+        </div>
+      </main>
+    </div>
+
+    <dialog id="deck-dialog" class="modal">
+      <form id="deck-form" method="dialog">
+        <header><div><span class="section-kicker">COLLECTION</span><h2 id="deck-dialog-title">Create a new deck</h2></div><button class="modal-close" type="button" data-close="deck-dialog" aria-label="Close">×</button></header>
+        <input id="deck-id" name="id" type="hidden">
+        <label class="field"><span>Deck name</span><input id="deck-title" name="title" type="text" placeholder="e.g. Spanish essentials" required maxlength="120"></label>
+        <label class="field"><span>Description <small>optional</small></span><textarea id="deck-description" name="description" placeholder="What are you learning?" maxlength="500" rows="3"></textarea></label>
+        <fieldset class="accent-picker"><legend>Cover colour</legend><div>
+          <label><input type="radio" name="accent" value="rose" checked><span class="accent rose"></span><small>Rose</small></label>
+          <label><input type="radio" name="accent" value="peach"><span class="accent peach"></span><small>Peach</small></label>
+          <label><input type="radio" name="accent" value="lilac"><span class="accent lilac"></span><small>Lilac</small></label>
+          <label><input type="radio" name="accent" value="sky"><span class="accent sky"></span><small>Sky</small></label>
+          <label><input type="radio" name="accent" value="mint"><span class="accent mint"></span><small>Mint</small></label>
+          <label><input type="radio" name="accent" value="berry"><span class="accent berry"></span><small>Berry</small></label>
+        </div></fieldset>
+        <footer><button class="button button-ghost" type="button" data-close="deck-dialog">Cancel</button><button id="deck-submit" class="button button-primary" type="submit">Create deck</button></footer>
+      </form>
+    </dialog>
+
+    <dialog id="card-dialog" class="modal modal-wide">
+      <form id="card-form" method="dialog">
+        <header><div><span class="section-kicker">FLASHCARD</span><h2 id="card-dialog-title">Add a card</h2></div><button class="modal-close" type="button" data-close="card-dialog" aria-label="Close">×</button></header>
+        <input id="card-id" name="id" type="hidden">
+        <div class="card-fields">
+          <label class="field"><span>Front <small>question or prompt</small></span><textarea id="card-front" name="front" placeholder="What do you want to recall?" required maxlength="5000" rows="6"></textarea></label>
+          <label class="field"><span>Back <small>answer</small></span><textarea id="card-back" name="back" placeholder="The answer you want to remember" required maxlength="5000" rows="6"></textarea></label>
+        </div>
+        <label class="field"><span>Hint <small>optional</small></span><input id="card-hint" name="hint" type="text" placeholder="A gentle nudge" maxlength="1000"></label>
+        <footer><button class="button button-ghost" type="button" data-close="card-dialog">Cancel</button><button id="card-submit" class="button button-primary" type="submit">Add card</button></footer>
+      </form>
+    </dialog>
+
+    <dialog id="settings-dialog" class="modal">
+      <div class="settings-content">
+        <header><div><span class="section-kicker">YOUR ACCOUNT</span><h2>Settings</h2></div><button class="modal-close" type="button" data-close="settings-dialog" aria-label="Close">×</button></header>
+        <form id="profile-form" class="settings-block">
+          <h3>Profile</h3>
+          <label class="field"><span>Name</span><input id="profile-name" name="name" required maxlength="60"></label>
+          <label class="field"><span>Email</span><input id="profile-email" disabled></label>
+          <button class="button button-secondary" type="submit">Save profile</button>
+        </form>
+        <form id="password-form" class="settings-block">
+          <h3>Change password</h3>
+          <label class="field"><span>Current password</span><input name="currentPassword" type="password" autocomplete="current-password" required></label>
+          <label class="field"><span>New password</span><input name="newPassword" type="password" autocomplete="new-password" minlength="8" maxlength="128" required></label>
+          <button class="button button-secondary" type="submit">Update password</button>
+        </form>
+        <div class="settings-block settings-actions">
+          <button class="button button-ghost" type="button" data-action="logout">Sign out</button>
+          <button class="text-danger" type="button" data-action="delete-account">Delete account</button>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog id="confirm-dialog" class="modal confirm-modal">
+      <form method="dialog">
+        <div class="confirm-icon" aria-hidden="true">!</div>
+        <h2 id="confirm-title">Are you sure?</h2>
+        <p id="confirm-message">This action cannot be undone.</p>
+        <label id="confirm-password-wrap" class="field hidden"><span>Your password</span><input id="confirm-password" type="password" autocomplete="current-password"></label>
+        <footer><button class="button button-ghost" type="button" data-close="confirm-dialog">Cancel</button><button id="confirm-button" class="button button-danger" type="submit">Delete</button></footer>
+      </form>
+    </dialog>
+
+    <div id="toast-region" class="toast-region" aria-live="polite" aria-atomic="true"></div>
+  </body>
+</html>
