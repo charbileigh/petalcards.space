@@ -1,0 +1,8 @@
+.git
+.github
+.env
+data
+*.sqlite*
+*.tar.gz
+node_modules
+npm-debug.log

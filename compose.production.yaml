@@ -1,0 +1,27 @@
+services:
+  petalcards:
+    environment:
+      APP_ORIGIN: https://${DOMAIN:-petalcards.space}
+      TRUST_PROXY: "1"
+      COOKIE_SECURE: "true"
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      petalcards:
+        condition: service_healthy
+    environment:
+      DOMAIN: ${DOMAIN:-petalcards.space}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  caddy_data:
+  caddy_config:
