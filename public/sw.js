@@ -1,5 +1,5 @@
-const CACHE = 'petalcards-shell-v2.0.0';
-const SHELL = ['/', '/index.html', '/styles.css', '/app.js', '/storage.js', '/downloads.js', '/pwa.js', '/manifest.webmanifest', '/favicon.svg', '/icons/icon-192.png', '/icons/icon-512.png'];
+const CACHE = 'petalcards-shell-v2.1.0';
+const SHELL = ['/', '/index.html', '/styles.css', '/app.js', '/storage.js', '/content.js', '/downloads.js', '/pwa.js', '/manifest.webmanifest', '/favicon.svg', '/icons/icon-192.png', '/icons/icon-512.png'];
 
 self.addEventListener('install', (event) => {
   // An incomplete shell never becomes the active version.

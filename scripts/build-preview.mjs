@@ -7,10 +7,11 @@ const storage = read('public/storage.js').replaceAll("'petalcards-device'", "'pe
 const exports = [...storage.matchAll(/export (?:async )?function (\w+)/g)].map((match) => match[1]);
 const wrappedStorage = `const library = (() => {\n${storage.replaceAll('export ', '')}\nreturn { ${exports.join(', ')} };\n})();`;
 const downloads = read('public/downloads.js').replaceAll('export ', '');
+const content = read('public/content.js').replaceAll('export ', '');
 let app = read('public/app.js').replace(/^import .*;\n/gm, '');
 // A downloaded preview has no legacy server and must never try to retrieve private data.
 app = app.replace(/let copyingPreviousCards = false;[\s\S]*?(?=async function init\(\))/, 'async function copyPreviousCards() {}\n\n');
-const script = `${wrappedStorage}\n${downloads}\n${app}\n
+const script = `${wrappedStorage}\n${downloads}\n${content}\n${app}\n
  document.getElementById('offline-status').textContent = 'Interactive preview · saves on this device';
  document.addEventListener('click', (event) => {
    if (event.target.closest('[data-action="install-app"]')) document.getElementById('install-dialog').showModal();

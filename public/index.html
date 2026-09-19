@@ -31,7 +31,7 @@
         </button>
         <div class="global-search">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.35-4.35m2.35-5.65a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z"/></svg>
-          <input id="deck-search" type="search" placeholder="Search your decks…" aria-label="Search your decks">
+          <input id="deck-search" type="search" placeholder="Search decks and cards…" aria-label="Search decks and cards">
           <kbd>/</kbd>
         </div>
         <nav class="top-actions" aria-label="Settings and appearance">
@@ -76,18 +76,22 @@
             <button class="button button-primary" type="button" data-action="new-deck"><span aria-hidden="true">+</span> New deck</button>
           </section>
 
+          <div id="backup-reminder" class="notice-bar hidden" role="status"><div><b>Keep a copy of your progress</b><p id="backup-reminder-text"></p></div><div class="library-tools"><button class="button button-secondary" type="button" data-action="backup">Download backup</button><button class="button button-ghost" type="button" data-action="snooze-backup">Later</button></div></div>
+          <div id="resume-banner" class="notice-bar hidden"><div><b>Pick up where you left off</b><p id="resume-text"></p></div><button class="button button-primary" type="button" data-action="resume-study">Resume session</button></div>
           <section class="stat-grid" aria-label="Study summary">
             <article class="stat-card stat-rose"><span class="stat-icon">▤</span><div><strong id="stat-decks">0</strong><span>Decks</span></div><small>collections</small></article>
             <article class="stat-card stat-peach"><span class="stat-icon">◇</span><div><strong id="stat-cards">0</strong><span>Cards</span></div><small>ideas saved</small></article>
             <article class="stat-card stat-lilac"><span class="stat-icon">◷</span><div><strong id="stat-due">0</strong><span>Due now</span></div><small>ready to review</small></article>
-            <article class="stat-card stat-mint"><span class="stat-icon">↗</span><div><strong id="stat-mastery">0%</strong><span>Mastery</span></div><small>long-term</small></article>
+            <article class="stat-card stat-mint"><span class="stat-icon">↗</span><div><strong id="stat-mastery">0%</strong><span>Mastery</span></div><small title="Cards with a scheduled review interval of at least 21 days.">21+ day interval</small></article>
           </section>
 
+          <details class="progress-panel"><summary>Your study progress <span id="today-summary"></span></summary><div class="progress-detail"><section><h3>Upcoming reviews</h3><p class="field-note">Today includes new and overdue cards. Later dates show the current schedule.</p><div id="upcoming-reviews"></div></section><section><h3>Needs more practice</h3><p class="field-note">Recent Again/Hard ratings or recall below 70% after at least three reviews.</p><div id="difficult-cards"></div></section></div><p class="field-note">Mastery is the share of cards scheduled at least 21 days apart. It is a scheduling indicator, not a test score.</p></details>
           <section class="decks-section">
             <div class="section-heading">
               <div><span class="section-kicker">YOUR COLLECTIONS</span><h2>All decks</h2></div>
-              <div class="library-tools"><button class="button button-ghost" type="button" data-action="import">Import</button><button class="button button-ghost" type="button" data-action="backup">Download backup</button><span id="deck-count-label" class="soft-pill">0 decks</span></div>
+              <div class="library-tools"><button class="button button-ghost" type="button" data-action="import">Import</button><button class="button button-ghost" type="button" data-action="bulk-add">Bulk add</button><button class="button button-ghost" type="button" data-action="trash">Recycle bin</button><button class="button button-ghost" type="button" data-action="backup">Download backup</button><span id="deck-count-label" class="soft-pill">0 decks</span></div>
             </div>
+            <div class="collection-filters"><label class="field"><span>Folder</span><select id="folder-filter"><option value="">All folders</option></select></label><label class="field"><span>Tag</span><select id="tag-filter"><option value="">All tags</option></select></label><button id="favorite-filter" class="button button-ghost" type="button" data-action="filter-favorites" aria-pressed="false">☆ Favourites</button></div>
             <div id="deck-grid" class="deck-grid"></div>
             <div id="empty-decks" class="empty-state hidden">
               <div class="empty-flower" aria-hidden="true">✿</div>
@@ -113,7 +117,10 @@
               <div><span class="section-kicker">CARD LIBRARY</span><h2>Cards</h2></div>
               <button class="button button-secondary" type="button" data-action="new-card"><span aria-hidden="true">+</span> Add card</button>
             </div>
+            <div class="card-library-toolbar"><label class="field"><span>Find a card</span><input id="card-search" type="search" placeholder="Search questions, answers or tags"></label><button id="card-favorite-filter" class="button button-ghost" type="button" data-action="filter-card-favorites" aria-pressed="false">☆ Favourites</button><button class="button button-secondary" type="button" data-action="bulk-add">Bulk add / CSV</button></div>
+            <p id="card-results" class="field-note" role="status"></p>
             <div id="card-list" class="card-list"></div>
+            <nav id="card-pagination" class="pagination hidden" aria-label="Card pages"><button id="cards-prev" class="button button-ghost" type="button" data-action="cards-prev">← Previous</button><span id="card-page-label" aria-live="polite"></span><button id="cards-next" class="button button-ghost" type="button" data-action="cards-next">Next →</button></nav>
             <div id="empty-cards" class="empty-state hidden">
               <div class="empty-flower" aria-hidden="true">◇</div>
               <h3>This deck is waiting</h3>
@@ -143,6 +150,7 @@
         <input id="deck-id" name="id" type="hidden">
         <label class="field"><span>Deck name</span><input id="deck-title" name="title" type="text" placeholder="e.g. Spanish essentials" required maxlength="120"></label>
         <label class="field"><span>Description <small>optional</small></span><textarea id="deck-description" name="description" placeholder="What are you learning?" maxlength="500" rows="3"></textarea></label>
+        <div class="card-fields"><label class="field"><span>Folder (optional)</span><input id="deck-folder" name="folder" list="folder-options" maxlength="60" placeholder="e.g. University"></label><label class="field"><span>Tags (comma-separated)</span><input id="deck-tags" name="tags" maxlength="620" placeholder="biology, chapter 1"></label></div><datalist id="folder-options"></datalist>
         <fieldset class="accent-picker"><legend>Cover colour</legend><div>
           <label><input type="radio" name="accent" value="rose" checked><span class="accent rose"></span><small>Rose</small></label>
           <label><input type="radio" name="accent" value="peach"><span class="accent peach"></span><small>Peach</small></label>
@@ -159,12 +167,18 @@
       <form id="card-form" method="dialog">
         <header><div><span class="section-kicker">FLASHCARD</span><h2 id="card-dialog-title">Add a card</h2></div><button class="modal-close" type="button" data-close="card-dialog" aria-label="Close">×</button></header>
         <input id="card-id" name="id" type="hidden">
+        <p class="field-note">Use **bold**, *italic* and `code` in your cards. Images are saved with the card and included in JSON backups.</p>
         <div class="card-fields">
           <label class="field"><span>Front <small>question or prompt</small></span><textarea id="card-front" name="front" placeholder="What do you want to recall?" required maxlength="5000" rows="6"></textarea></label>
           <label class="field"><span>Back <small>answer</small></span><textarea id="card-back" name="back" placeholder="The answer you want to remember" required maxlength="5000" rows="6"></textarea></label>
         </div>
+        <div class="image-fields">
+          <div><label class="field"><span>Front image (optional)</span><input id="front-image-file" type="file" accept="image/png,image/jpeg,image/webp"></label><img id="front-image-preview" class="image-preview hidden" alt="Front image preview"><label class="field"><span>Front image description</span><input id="front-image-alt" maxlength="300" placeholder="Describe the image"></label><button type="button" class="button button-ghost" data-action="remove-image" data-side="front">Remove front image</button></div>
+          <div><label class="field"><span>Back image (optional)</span><input id="back-image-file" type="file" accept="image/png,image/jpeg,image/webp"></label><img id="back-image-preview" class="image-preview hidden" alt="Back image preview"><label class="field"><span>Back image description</span><input id="back-image-alt" maxlength="300" placeholder="Describe the image"></label><button type="button" class="button button-ghost" data-action="remove-image" data-side="back">Remove back image</button></div>
+        </div>
+        <label class="field"><span>Tags (comma-separated)</span><input id="card-tags" name="tags" maxlength="620" placeholder="definitions, exam"></label>
         <label class="field"><span>Hint <small>optional</small></span><input id="card-hint" name="hint" type="text" placeholder="A gentle nudge" maxlength="1000"></label>
-        <footer><button class="button button-ghost" type="button" data-close="card-dialog">Cancel</button><button id="card-submit" class="button button-primary" type="submit">Add card</button></footer>
+        <footer><button class="button button-ghost" type="button" data-close="card-dialog">Cancel</button><button id="card-add-another" class="button button-secondary" type="submit" name="keepAdding" value="yes">Save + add another</button><button id="card-submit" class="button button-primary" type="submit">Add card</button></footer>
       </form>
     </dialog>
 
@@ -176,13 +190,15 @@
           <label class="field"><span>What should we call you? (optional)</span><input id="profile-name" name="name" maxlength="60" placeholder="friend"></label>
           <button class="button button-secondary" type="submit">Save name</button>
         </form>
+        <form id="accessibility-form" class="settings-block"><h3>Reading and focus</h3><label class="field"><span>Card text size</span><select id="card-text-size"><option value="normal">Normal</option><option value="large">Large</option><option value="larger">Extra large</option></select></label><label class="check-field"><input id="focus-setting" type="checkbox">Hide distractions during study</label><button class="button button-secondary" type="submit">Save reading settings</button></form>
         <div class="settings-block">
           <h3>Your cards, on this device</h3>
           <p>Cards and study progress save automatically, online or offline. Clearing site data or using a different browser or domain gives you a separate collection.</p>
+          <p id="last-backup" class="backup-status"></p><p>Deleted cards and decks stay in the recycle bin until you restore or permanently remove them. Restore any deleted items you want to include before exporting a backup.</p>
           <p>Download a backup to keep a copy or move your cards. Import adds decks without replacing your current collection.</p>
           <div class="library-tools">
             <button class="button button-secondary" type="button" data-action="backup">Download backup</button>
-            <button class="button button-ghost" type="button" data-action="import">Import JSON</button>
+            <button class="button button-ghost" type="button" data-action="import">Import JSON / CSV</button>
             <button class="button button-ghost" type="button" data-action="keep-storage">Keep storage on device</button>
           </div>
         </div>
@@ -194,6 +210,30 @@
       </div>
     </dialog>
 
+
+    <dialog id="study-options-dialog" class="modal">
+      <form id="study-options-form"><header><div><span class="section-kicker">YOUR STUDY SESSION</span><h2>How would you like to study?</h2></div><button class="modal-close" type="button" data-close="study-options-dialog" aria-label="Close">×</button></header>
+        <p id="study-options-note" class="field-note"></p>
+        <label class="field"><span>Cards to include</span><select id="study-mode"><option value="due">Due cards</option><option value="difficult">Difficult cards</option><option value="all">All cards</option><option value="favorites">Favourite cards</option></select></label>
+        <label class="field"><span>Session length</span><select id="study-limit"><option value="0">All matching cards</option><option value="5">5 cards</option><option value="10">10 cards</option><option value="20">20 cards</option><option value="50">50 cards</option></select></label>
+        <label class="check-field"><input id="study-shuffle" type="checkbox">Shuffle the cards</label><label class="check-field"><input id="study-reverse" type="checkbox">Show answers first (reverse cards)</label>
+        <footer><button id="study-resume-option" class="button button-secondary hidden" type="button" data-action="resume-study">Resume saved session</button><button id="study-start" class="button button-primary" type="submit">Start session</button></footer>
+      </form>
+    </dialog>
+    <dialog id="bulk-dialog" class="modal modal-wide">
+      <form id="bulk-form"><header><div><span class="section-kicker">MAKE ROOM FOR MORE</span><h2>Add cards in bulk</h2></div><button class="modal-close" type="button" data-close="bulk-dialog" aria-label="Close">×</button></header>
+        <div class="card-fields"><label class="field"><span>Destination</span><select id="bulk-target"></select></label><label id="bulk-title-wrap" class="field"><span>New deck title</span><input id="bulk-title" maxlength="120" placeholder="Imported cards"></label></div>
+        <label class="field"><span>CSV or TSV file (optional)</span><input id="bulk-file" type="file" accept=".csv,.tsv,text/csv,text/tab-separated-values"></label>
+        <label class="field"><span>Paste rows from your notes or spreadsheet</span><textarea id="bulk-text" rows="7" placeholder="Question,Answer,Hint,Tags&#10;What is active recall?,Retrieving an answer from memory,,study"></textarea></label>
+        <label class="field"><span>Separator</span><select id="bulk-separator"><option value="auto">Detect automatically</option><option value="tab">Tab (spreadsheet paste)</option><option value=",">Comma (CSV)</option><option value=";">Semicolon</option></select></label>
+        <p class="field-note">Question and answer are required; hint and tags are optional. Headers may be Front/Back or Question/Answer. Quote CSV fields containing commas. Images travel in JSON backups.</p>
+        <button id="bulk-preview-button" class="button button-secondary" type="button" data-action="preview-bulk">Preview cards</button><div id="bulk-preview" class="bulk-preview" aria-live="polite"></div>
+        <footer><button class="button button-ghost" type="button" data-close="bulk-dialog">Cancel</button><button id="bulk-submit" class="button button-primary" type="submit">Add cards</button></footer>
+      </form>
+    </dialog>
+    <dialog id="transfer-dialog" class="modal"><form id="transfer-form"><header><div><span class="section-kicker">ORGANISE YOUR CARDS</span><h2>Move or copy card</h2></div><button class="modal-close" type="button" data-close="transfer-dialog" aria-label="Close">×</button></header><label class="field"><span>Destination deck</span><select id="transfer-target"></select></label><label class="field"><span>Action</span><select id="transfer-mode"><option value="move">Move card (keep its progress)</option><option value="copy">Copy card (start fresh)</option></select></label><footer><button class="button button-primary" type="submit">Continue</button></footer></form></dialog>
+    <dialog id="trash-dialog" class="modal modal-wide"><div class="settings-content"><header><div><span class="section-kicker">NOT LOST</span><h2>Recycle bin</h2></div><button class="modal-close" type="button" data-close="trash-dialog" aria-label="Close">×</button></header><p class="field-note">Deleted decks and cards stay here until you restore them or empty the bin. Restoring a card also restores its deck if needed.</p><div id="trash-list"></div><button id="empty-trash" class="button button-danger" type="button" data-action="empty-trash">Empty recycle bin</button></div></dialog>
+
     <dialog id="confirm-dialog" class="modal confirm-modal">
       <form method="dialog">
         <div class="confirm-icon" aria-hidden="true">!</div>
@@ -203,7 +243,7 @@
       </form>
     </dialog>
 
-    <input id="import-file" class="hidden" type="file" accept=".json,application/json" aria-label="Import Petalcards backup">
+    <input id="import-file" class="hidden" type="file" accept=".json,.csv,.tsv,application/json,text/csv,text/tab-separated-values" aria-label="Import Petalcards backup or CSV">
     <dialog id="install-dialog" class="modal">
       <div class="settings-content">
         <header><div><span class="section-kicker">ON YOUR DEVICE</span><h2>Install Petalcards</h2></div><button class="modal-close" type="button" data-close="install-dialog" aria-label="Close">×</button></header>

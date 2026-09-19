@@ -29,7 +29,7 @@ export function createPetalCardsServer({ dbPath = defaultDatabasePath() } = {}) 
     try {
       const url = new URL(request.url || '/', 'http://localhost');
       if (!['GET', 'HEAD'].includes(request.method)) return json(response, 405, { error: 'Method not allowed.' });
-      if (url.pathname === '/api/health') return json(response, 200, { ok: true, service: 'petalcards', storage: 'device', version: '2.0.0' });
+      if (url.pathname === '/api/health') return json(response, 200, { ok: true, service: 'petalcards', storage: 'device', version: '2.1.0' });
       if (url.pathname === '/api/legacy-library') {
         const origin = request.headers.origin;
         const expectedOrigin = process.env.APP_ORIGIN?.replace(/\/$/, '');
