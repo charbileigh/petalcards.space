@@ -10,7 +10,8 @@ function userView(row) {
   return row ? {
     id: row.id,
     name: row.name,
-    email: row.email,
+    email: row.password_hash === '' ? null : row.email,
+    guest: row.password_hash === '',
     createdAt: row.created_at,
   } : null;
 }
@@ -162,7 +163,7 @@ export class PetalDatabase {
 
   getSession(tokenHash) {
     const row = this.db.prepare(`
-      SELECT s.token_hash, s.expires_at, u.id, u.name, u.email, u.created_at
+      SELECT s.token_hash, s.expires_at, u.id, u.name, u.email, u.password_hash, u.created_at
       FROM sessions s JOIN users u ON u.id = s.user_id
       WHERE s.token_hash = ? AND s.expires_at > ?
     `).get(tokenHash, Date.now());

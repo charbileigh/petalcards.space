@@ -159,3 +159,46 @@ test('persists a dark theme and supports sign out/sign in', async () => {
   assert.equal(login.response.status, 200);
   cookie = login.response.headers.get('set-cookie').split(';')[0];
 });
+
+test('guest workspaces support saved cards, reviews, downloads and browser isolation', async () => {
+  const guest = await call('/api/guest', { method: 'POST', body: {}, session: null });
+  assert.equal(guest.response.status, 201);
+  assert.equal(guest.payload.user.guest, true);
+  assert.equal(guest.payload.user.email, null);
+  const header = guest.response.headers.get('set-cookie');
+  assert.match(header, /HttpOnly/);
+  assert.match(header, /SameSite=Lax/);
+  const session = header.split(';')[0];
+  const deck = await call('/api/decks', { method: 'POST', body: { title: 'Guest notes' }, session });
+  const id = deck.payload.deck.id;
+  const card = await call(`/api/decks/${id}/cards`, { method: 'POST', body: { front: 'Question', back: 'Answer' }, session });
+  const cardId = card.payload.card.id;
+  assert.equal(card.response.status, 201);
+  assert.equal((await call(`/api/cards/${cardId}/review`, { method: 'POST', body: { rating: 'good' }, session })).response.status, 200);
+  await call('/api/preferences', { method: 'PATCH', body: { theme: 'blue' }, session });
+  const reopen = await call('/api/bootstrap', { session });
+  assert.equal(reopen.payload.user.id, guest.payload.user.id);
+  assert.equal(reopen.payload.theme, 'blue');
+  assert.ok(reopen.payload.decks.some((item) => item.id === id));
+  assert.match(reopen.response.headers.get('set-cookie'), /Max-Age=31536000/);
+  assert.equal((await call(`/api/decks/${id}`, { session })).payload.deck.cards[0].reviewCount, 1);
+  assert.equal((await call(`/api/decks/${id}/export?format=json`, { session })).payload.deck.cards[0].back, 'Answer');
+  assert.match((await call(`/api/decks/${id}/export?format=csv`, { session })).payload, /Question,Answer/);
+  const again = await call('/api/guest', { method: 'POST', body: {}, session });
+  assert.equal(again.payload.user.id, guest.payload.user.id);
+  const other = await call('/api/guest', { method: 'POST', body: {}, session: null });
+  const otherSession = other.response.headers.get('set-cookie').split(';')[0];
+  for (const method of ['GET', 'PATCH', 'DELETE']) {
+    const result = await call(`/api/decks/${id}`, { method, session: otherSession, ...(method === 'GET' ? {} : { body: { title: 'Forbidden' } }) });
+    assert.equal(result.response.status, 404);
+  }
+  assert.equal((await call(`/api/cards/${cardId}/review`, { method: 'POST', body: { rating: 'easy' }, session: otherSession })).response.status, 404);
+  assert.equal((await call('/api/guest', { method: 'POST', body: {}, session: null, origin: 'https://attacker.example' })).response.status, 403);
+  // Account sign-in takes priority; signing out preserves the separate guest cookie.
+  const combined = `${cookie}; ${session}`;
+  assert.equal((await call('/api/bootstrap', { session: combined })).payload.user.guest, false);
+  await call('/api/auth/logout', { method: 'POST', body: {}, session: combined });
+  assert.equal((await call('/api/bootstrap', { session })).payload.user.id, guest.payload.user.id);
+  const password = await call('/api/account/password', { method: 'POST', body: {}, session });
+  assert.equal(password.response.status, 403);
+});

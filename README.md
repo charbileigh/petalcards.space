@@ -1,13 +1,13 @@
 # Petalcards
 
-A complete, self-hosted flashcard app. Petalcards has native email/password accounts, private decks, spaced review, downloadable CSV/JSON files, a pink light theme, and five dark themes.
+A complete, self-hosted flashcard app. Petalcards opens without a login, with a private workspace per browser, private decks, spaced review, downloadable CSV/JSON files, a pink light theme, and five dark themes.
 
 It is a dynamic server application—not a static site and not a PWA. The app, API, authentication, and database all run on infrastructure you control.
 
 ## What is included
 
-- Native registration, sign in, sign out, profile editing, password changes, and account deletion
-- A separate private library for every account
+- Automatic guest workspaces; optional legacy account registration, sign in, sign out, profile editing, password changes, and account deletion
+- A separate private library for every browser workspace or account
 - Deck and card creation, editing, deletion, and search
 - A tested flashcard flow: open a deck, flip a card, rate it, and advance
 - Lightweight spaced-review scheduling and progress statistics
@@ -28,7 +28,7 @@ cp .env.example .env
 docker compose up -d --build
 ```
 
-Open <http://localhost:3000>, create your account, and open the included **Welcome to Petalcards** deck. It contains three working cards so you can test the study flow immediately.
+Open <http://localhost:3000>, and open the included **Welcome to Petalcards** deck. It contains three working cards so you can test the study flow immediately.
 
 To stop the app:
 
@@ -85,7 +85,7 @@ The included production Compose file adds Caddy as a reverse proxy and automatic
    docker compose -f compose.yaml -f compose.production.yaml up -d --build
    ```
 
-7. Visit `https://petalcards.space` and create your account. If this is a private installation, change `ALLOW_REGISTRATION=false` afterward and run the same production command again.
+7. Visit `https://petalcards.space` to start without signing in. To disable optional account registration, change `ALLOW_REGISTRATION=false` afterward and run the same production command again.
 
 Check status and logs with:
 
@@ -139,3 +139,9 @@ Caddyfile               Domain and TLS configuration
 ## License
 
 MIT
+
+## Using Petalcards without a login
+
+The app automatically opens a private guest workspace. Decks, cards, review progress and themes remain in SQLite; an HttpOnly browser cookie provides access. Guest cookies last one year and renew when the workspace opens. Keep cookies enabled. Clearing them, using another browser/device, or returning after expiry creates a new workspace; there is no guest password recovery. Download CSV/JSON copies of important decks.
+
+Existing accounts and their decks are preserved. Use Settings → Sign in to an existing account to access them. Signing out returns to this browser's guest workspace. Account and guest decks stay separate. `ALLOW_REGISTRATION=false` does not disable guest workspaces.
