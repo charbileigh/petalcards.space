@@ -9,7 +9,7 @@ export function deckCSV(deck) {
     if (/^[\s]*[=+@-]/.test(text) || /^[\t\r]/.test(text)) text = `'${text}`;
     return `"${text.replaceAll('"', '""')}"`;
   };
-  return '\uFEFF' + [['Front', 'Back', 'Hint'], ...deck.cards.map(({ front, back, hint }) => [front, back, hint])].map((row) => row.map(cell).join(',')).join('\r\n');
+  return '\uFEFF' + [['Front', 'Back', 'Hint', 'Tags'], ...deck.cards.map(({ front, back, hint, tags }) => [front, back, hint, (tags || []).join(', ')])].map((row) => row.map(cell).join(',')).join('\r\n');
 }
 
 export function downloadFile(content, filename, type) {

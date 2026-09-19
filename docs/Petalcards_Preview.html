@@ -176,7 +176,7 @@ kbd { padding: 1px 6px; color: var(--faint); border: 1px solid var(--border); bo
 .deck-card { position: relative; min-height: 236px; padding: 0; overflow: hidden; border: 1px solid var(--border); border-radius: 21px; background: var(--surface-solid); box-shadow: var(--shadow-sm); cursor: pointer; transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition); }
 .deck-card:hover { border-color: color-mix(in srgb, var(--deck-accent) 45%, var(--border)); box-shadow: var(--shadow); transform: translateY(-3px); }
 .deck-cover { position: relative; height: 88px; overflow: hidden; background: linear-gradient(135deg, color-mix(in srgb, var(--deck-accent) 25%, var(--surface-solid)), color-mix(in srgb, var(--deck-accent) 8%, var(--surface-solid))); }
-.deck-cover::before, .deck-cover::after { position: absolute; width: 95px; height: 95px; border: 17px solid color-mix(in srgb, var(--deck-accent) 22%, transparent); border-radius: 50%; content: ""; }
+.deck-cover::before, .deck-cover::after { pointer-events: none; position: absolute; width: 95px; height: 95px; border: 17px solid color-mix(in srgb, var(--deck-accent) 22%, transparent); border-radius: 50%; content: ""; }
 .deck-cover::before { top: -60px; right: 20px; }
 .deck-cover::after { right: -45px; bottom: -65px; }
 .deck-bloom { position: absolute; top: 18px; left: 22px; color: var(--deck-accent); font-size: 27px; }
@@ -364,6 +364,105 @@ kbd { padding: 1px 6px; color: var(--faint); border: 1px solid var(--border); bo
   .library-tools { gap: 5px; }
   .library-tools .button { padding: 9px 12px; }
 }
+
+/* Collection tools and recovery */
+.notice-bar { display: flex; justify-content: space-between; align-items: center; gap: 18px; padding: 18px 22px; margin-bottom: 18px; border: 1px solid var(--border); border-radius: 16px; background: var(--primary-soft); }
+.notice-bar p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+.notice-bar b { font-size: 14px; }
+.field-note { font-size: 12px; color: var(--muted); line-height: 1.6; }
+.collection-filters, .card-library-toolbar { display: flex; align-items: flex-end; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
+.collection-filters .field { min-width: 155px; margin: 0; }
+.card-library-toolbar .field { flex: 1; min-width: 200px; }
+select { min-height: 42px; max-width: 100%; border: 1px solid var(--border); border-radius: 11px; background: var(--surface-solid); color: var(--text); padding: 9px 32px 9px 12px; font: inherit; }
+button[aria-pressed="true"]:not(.flashcard) { color: var(--primary-ink); background: var(--primary-soft); border-color: var(--primary); }
+.favorite-button { z-index: 1; position: absolute; top: 15px; right: 15px; display: grid; place-items: center; width: 36px; height: 36px; border: 1px solid var(--border); border-radius: 11px; color: var(--primary-ink); background: var(--surface-solid); cursor: pointer; font-size: 22px; }
+.tag-list { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+.tag-list span { padding: 3px 7px; border-radius: 7px; background: var(--primary-soft); color: var(--primary-ink); font-size: 10px; overflow-wrap: anywhere; }
+.deck-card .deck-meta { padding-right: 34px; }
+.deck-hero { overflow: visible; }
+.deck-hero::after { display: none; }
+.library-card { grid-template-columns: minmax(0, 1fr) 1px minmax(0, 1fr) auto; }
+.pagination { display: flex; justify-content: center; align-items: center; gap: 18px; margin-top: 22px; }
+.pagination span { font-size: 12px; color: var(--muted); }
+.check-field { display: flex; gap: 10px; align-items: center; margin: 16px 0; font-size: 13px; }
+.check-field input { width: 18px; height: 18px; padding: 0; accent-color: var(--primary); }
+.image-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; padding: 18px; margin-bottom: 18px; background: var(--surface-2); border-radius: 14px; }
+.image-fields input[type=file] { max-width: 100%; min-width: 0; padding: 8px; font-size: 11px; }
+.image-preview { display: block; max-height: 130px; max-width: 100%; object-fit: contain; margin-bottom: 10px; border-radius: 10px; }
+.bulk-preview { max-height: 300px; overflow: auto; margin-top: 18px; font-size: 13px; }
+.bulk-preview table { border-collapse: collapse; width: 100%; table-layout: fixed; }
+.bulk-preview td, .bulk-preview th { border-bottom: 1px solid var(--border); padding: 10px; text-align: left; vertical-align: top; overflow-wrap: anywhere; white-space: pre-wrap; }
+.trash-item { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 16px 0; border-bottom: 1px solid var(--border); }
+.trash-item > div { min-width: 0; overflow-wrap: anywhere; }
+.trash-item p { margin: 4px 0; color: var(--muted); font-size: 12px; }
+#empty-trash { margin-top: 22px; }
+.toast { gap: 12px; }
+.toast button { pointer-events: auto; border: 0; background: var(--primary-soft); border-radius: 7px; padding: 6px 10px; color: var(--primary-ink); cursor: pointer; }
+.progress-panel { border: 1px solid var(--border); border-radius: 18px; background: var(--surface); padding: 18px 22px; margin: 0 0 32px; }
+.progress-panel summary { cursor: pointer; color: var(--text); font-weight: 650; font-size: 14px; }
+.progress-panel summary span { margin-left: 12px; color: var(--muted); font-size: 12px; font-weight: normal; }
+.progress-detail { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 20px; }
+.progress-detail h3 { font-size: 15px; }
+.upcoming-row { display: grid; grid-template-columns: 80px 1fr 35px; gap: 12px; align-items: center; margin: 10px 0; font-size: 12px; }
+.upcoming-row progress { accent-color: var(--primary); width: 100%; height: 8px; }
+.practice-link { display: grid; width: 100%; gap: 4px; border: 0; border-bottom: 1px solid var(--border); padding: 10px 0; background: transparent; color: var(--text); text-align: left; cursor: pointer; }
+.practice-link b { font-size: 12px; overflow-wrap: anywhere; }
+.practice-link small { color: var(--muted); font-size: 11px; }
+
+/* Stable card size, explicit navigation, and accessible front/back content. */
+.study-progress { margin-bottom: 22px; }
+.study-toolbar { width: min(100%, 710px); display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 18px; }
+.study-toolbar label { display: flex; gap: 10px; align-items: center; min-width: 0; color: var(--muted); font-size: 12px; }
+.study-toolbar select { width: 250px; min-width: 0; font-size: 12px; }
+.flip-scene { width: min(100%, 710px); min-height: 310px; height: min(50vh, 470px); touch-action: pan-y; }
+.flashcard { transition: transform 320ms ease; }
+.rich-card-content { display: flex; flex-direction: column; gap: 15px; align-items: center; width: 100%; margin: auto 0; font-family: var(--serif); font-size: var(--card-font, clamp(23px, 3.4vw, 34px)); line-height: 1.5; text-align: center; overflow-wrap: anywhere; }
+.rich-card-content > span { width: 100%; }
+.rich-card-content code { font-family: monospace; font-size: .8em; padding: 2px 6px; border-radius: 5px; background: var(--primary-soft); }
+html[data-card-size="large"] { --card-font: clamp(28px, 4vw, 42px); }
+html[data-card-size="larger"] { --card-font: clamp(33px, 4.5vw, 50px); }
+.flash-face { justify-content: flex-start; flex-direction: column; padding: 55px 28px 30px; }
+.study-image { max-width: 100%; max-height: 190px; object-fit: contain; border-radius: 10px; flex-shrink: 0; }
+.study-navigation { display: grid; grid-template-columns: 1fr auto 1fr; width: min(100%, 710px); gap: 12px; margin-top: 20px; }
+.study-navigation > :first-child { justify-self: start; }
+.study-navigation > :last-child { justify-self: end; }
+.rating-area { min-height: 105px; }
+.concealed { visibility: hidden; pointer-events: none; }
+.card-enter { animation: card-enter 140ms ease-out; }
+.study-help { line-height: 1.8; margin-top: 10px; }
+.study-focus .topbar, .study-focus .workspace-bar { display: none; }
+.study-focus .study-wrap { padding-top: 24px; }
+@keyframes card-enter { from { opacity: .4; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 980px) { .library-card { gap: 12px; } .card-tools { flex-wrap: wrap; max-width: 70px; } }
+@media (max-width: 680px) {
+  .notice-bar { align-items: flex-start; flex-direction: column; padding: 16px; }
+  .collection-filters .field { flex: 1; min-width: 110px; }
+  .progress-detail, .image-fields { grid-template-columns: 1fr; }
+  .progress-panel { padding: 16px; }
+  .progress-panel summary span { display: block; margin: 7px 0 0; }
+  .library-card { grid-template-columns: minmax(0, 1fr) auto; }
+  .library-card .divider { display: none; }
+  .library-card .card-copy:nth-of-type(2) { grid-column: 1; }
+  .card-tools { grid-column: 2; grid-row: 1 / span 2; }
+  .study-toolbar { align-items: flex-start; }
+  .study-toolbar label { flex-direction: column; align-items: flex-start; gap: 5px; width: 55%; }
+  .study-toolbar select { width: 100%; }
+  .study-toolbar .button { padding: 10px; font-size: 11px; }
+  .study-navigation { gap: 3px; }
+  .study-navigation .button { font-size: 11px; padding: 11px 9px; }
+  .flip-scene { height: 42vh; min-height: 280px; }
+  .flash-face { padding: 48px 20px 20px; }
+  .completion-actions { flex-wrap: wrap; }
+  .modal footer { flex-wrap: wrap; }
+}
+@media (prefers-reduced-motion: reduce) { .card-enter { animation: none; } .flashcard { transition: none; } html { scroll-behavior: auto; } }
+
+@media (max-width: 680px) {
+  .topbar { height: auto; min-height: 66px; padding-top: 12px; padding-bottom: 12px; }
+  .top-actions { grid-column: 2; grid-row: 1; }
+  .global-search { position: static; display: flex; grid-column: 1 / -1; grid-row: 2; width: 100%; margin-top: 5px; box-shadow: none; }
+  .study-title { display: flex; grid-row: 2; grid-column: 1 / -1; align-items: center; gap: 5px; padding-top: 10px; }
+}
 </style>
   <style>.preview-note { margin: 0; padding: 12px 20px; background: var(--primary-soft); color: var(--text); text-align: center; font-size: 13px; }</style></head>
   <body><p class="preview-note">Interactive preview. Desktop installation is available on the deployed HTTPS app.</p>
@@ -384,7 +483,7 @@ kbd { padding: 1px 6px; color: var(--faint); border: 1px solid var(--border); bo
         </button>
         <div class="global-search">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.35-4.35m2.35-5.65a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z"/></svg>
-          <input id="deck-search" type="search" placeholder="Search your decks…" aria-label="Search your decks">
+          <input id="deck-search" type="search" placeholder="Search decks and cards…" aria-label="Search decks and cards">
           <kbd>/</kbd>
         </div>
         <nav class="top-actions" aria-label="Settings and appearance">
@@ -429,18 +528,22 @@ kbd { padding: 1px 6px; color: var(--faint); border: 1px solid var(--border); bo
             <button class="button button-primary" type="button" data-action="new-deck"><span aria-hidden="true">+</span> New deck</button>
           </section>
 
+          <div id="backup-reminder" class="notice-bar hidden" role="status"><div><b>Keep a copy of your progress</b><p id="backup-reminder-text"></p></div><div class="library-tools"><button class="button button-secondary" type="button" data-action="backup">Download backup</button><button class="button button-ghost" type="button" data-action="snooze-backup">Later</button></div></div>
+          <div id="resume-banner" class="notice-bar hidden"><div><b>Pick up where you left off</b><p id="resume-text"></p></div><button class="button button-primary" type="button" data-action="resume-study">Resume session</button></div>
           <section class="stat-grid" aria-label="Study summary">
             <article class="stat-card stat-rose"><span class="stat-icon">▤</span><div><strong id="stat-decks">0</strong><span>Decks</span></div><small>collections</small></article>
             <article class="stat-card stat-peach"><span class="stat-icon">◇</span><div><strong id="stat-cards">0</strong><span>Cards</span></div><small>ideas saved</small></article>
             <article class="stat-card stat-lilac"><span class="stat-icon">◷</span><div><strong id="stat-due">0</strong><span>Due now</span></div><small>ready to review</small></article>
-            <article class="stat-card stat-mint"><span class="stat-icon">↗</span><div><strong id="stat-mastery">0%</strong><span>Mastery</span></div><small>long-term</small></article>
+            <article class="stat-card stat-mint"><span class="stat-icon">↗</span><div><strong id="stat-mastery">0%</strong><span>Mastery</span></div><small title="Cards with a scheduled review interval of at least 21 days.">21+ day interval</small></article>
           </section>
 
+          <details class="progress-panel"><summary>Your study progress <span id="today-summary"></span></summary><div class="progress-detail"><section><h3>Upcoming reviews</h3><p class="field-note">Today includes new and overdue cards. Later dates show the current schedule.</p><div id="upcoming-reviews"></div></section><section><h3>Needs more practice</h3><p class="field-note">Recent Again/Hard ratings or recall below 70% after at least three reviews.</p><div id="difficult-cards"></div></section></div><p class="field-note">Mastery is the share of cards scheduled at least 21 days apart. It is a scheduling indicator, not a test score.</p></details>
           <section class="decks-section">
             <div class="section-heading">
               <div><span class="section-kicker">YOUR COLLECTIONS</span><h2>All decks</h2></div>
-              <div class="library-tools"><button class="button button-ghost" type="button" data-action="import">Import</button><button class="button button-ghost" type="button" data-action="backup">Download backup</button><span id="deck-count-label" class="soft-pill">0 decks</span></div>
+              <div class="library-tools"><button class="button button-ghost" type="button" data-action="import">Import</button><button class="button button-ghost" type="button" data-action="bulk-add">Bulk add</button><button class="button button-ghost" type="button" data-action="trash">Recycle bin</button><button class="button button-ghost" type="button" data-action="backup">Download backup</button><span id="deck-count-label" class="soft-pill">0 decks</span></div>
             </div>
+            <div class="collection-filters"><label class="field"><span>Folder</span><select id="folder-filter"><option value="">All folders</option></select></label><label class="field"><span>Tag</span><select id="tag-filter"><option value="">All tags</option></select></label><button id="favorite-filter" class="button button-ghost" type="button" data-action="filter-favorites" aria-pressed="false">☆ Favourites</button></div>
             <div id="deck-grid" class="deck-grid"></div>
             <div id="empty-decks" class="empty-state hidden">
               <div class="empty-flower" aria-hidden="true">✿</div>
@@ -466,7 +569,10 @@ kbd { padding: 1px 6px; color: var(--faint); border: 1px solid var(--border); bo
               <div><span class="section-kicker">CARD LIBRARY</span><h2>Cards</h2></div>
               <button class="button button-secondary" type="button" data-action="new-card"><span aria-hidden="true">+</span> Add card</button>
             </div>
+            <div class="card-library-toolbar"><label class="field"><span>Find a card</span><input id="card-search" type="search" placeholder="Search questions, answers or tags"></label><button id="card-favorite-filter" class="button button-ghost" type="button" data-action="filter-card-favorites" aria-pressed="false">☆ Favourites</button><button class="button button-secondary" type="button" data-action="bulk-add">Bulk add / CSV</button></div>
+            <p id="card-results" class="field-note" role="status"></p>
             <div id="card-list" class="card-list"></div>
+            <nav id="card-pagination" class="pagination hidden" aria-label="Card pages"><button id="cards-prev" class="button button-ghost" type="button" data-action="cards-prev">← Previous</button><span id="card-page-label" aria-live="polite"></span><button id="cards-next" class="button button-ghost" type="button" data-action="cards-next">Next →</button></nav>
             <div id="empty-cards" class="empty-state hidden">
               <div class="empty-flower" aria-hidden="true">◇</div>
               <h3>This deck is waiting</h3>
@@ -496,6 +602,7 @@ kbd { padding: 1px 6px; color: var(--faint); border: 1px solid var(--border); bo
         <input id="deck-id" name="id" type="hidden">
         <label class="field"><span>Deck name</span><input id="deck-title" name="title" type="text" placeholder="e.g. Spanish essentials" required maxlength="120"></label>
         <label class="field"><span>Description <small>optional</small></span><textarea id="deck-description" name="description" placeholder="What are you learning?" maxlength="500" rows="3"></textarea></label>
+        <div class="card-fields"><label class="field"><span>Folder (optional)</span><input id="deck-folder" name="folder" list="folder-options" maxlength="60" placeholder="e.g. University"></label><label class="field"><span>Tags (comma-separated)</span><input id="deck-tags" name="tags" maxlength="620" placeholder="biology, chapter 1"></label></div><datalist id="folder-options"></datalist>
         <fieldset class="accent-picker"><legend>Cover colour</legend><div>
           <label><input type="radio" name="accent" value="rose" checked><span class="accent rose"></span><small>Rose</small></label>
           <label><input type="radio" name="accent" value="peach"><span class="accent peach"></span><small>Peach</small></label>
@@ -512,12 +619,18 @@ kbd { padding: 1px 6px; color: var(--faint); border: 1px solid var(--border); bo
       <form id="card-form" method="dialog">
         <header><div><span class="section-kicker">FLASHCARD</span><h2 id="card-dialog-title">Add a card</h2></div><button class="modal-close" type="button" data-close="card-dialog" aria-label="Close">×</button></header>
         <input id="card-id" name="id" type="hidden">
+        <p class="field-note">Use **bold**, *italic* and `code` in your cards. Images are saved with the card and included in JSON backups.</p>
         <div class="card-fields">
           <label class="field"><span>Front <small>question or prompt</small></span><textarea id="card-front" name="front" placeholder="What do you want to recall?" required maxlength="5000" rows="6"></textarea></label>
           <label class="field"><span>Back <small>answer</small></span><textarea id="card-back" name="back" placeholder="The answer you want to remember" required maxlength="5000" rows="6"></textarea></label>
         </div>
+        <div class="image-fields">
+          <div><label class="field"><span>Front image (optional)</span><input id="front-image-file" type="file" accept="image/png,image/jpeg,image/webp"></label><img id="front-image-preview" class="image-preview hidden" alt="Front image preview"><label class="field"><span>Front image description</span><input id="front-image-alt" maxlength="300" placeholder="Describe the image"></label><button type="button" class="button button-ghost" data-action="remove-image" data-side="front">Remove front image</button></div>
+          <div><label class="field"><span>Back image (optional)</span><input id="back-image-file" type="file" accept="image/png,image/jpeg,image/webp"></label><img id="back-image-preview" class="image-preview hidden" alt="Back image preview"><label class="field"><span>Back image description</span><input id="back-image-alt" maxlength="300" placeholder="Describe the image"></label><button type="button" class="button button-ghost" data-action="remove-image" data-side="back">Remove back image</button></div>
+        </div>
+        <label class="field"><span>Tags (comma-separated)</span><input id="card-tags" name="tags" maxlength="620" placeholder="definitions, exam"></label>
         <label class="field"><span>Hint <small>optional</small></span><input id="card-hint" name="hint" type="text" placeholder="A gentle nudge" maxlength="1000"></label>
-        <footer><button class="button button-ghost" type="button" data-close="card-dialog">Cancel</button><button id="card-submit" class="button button-primary" type="submit">Add card</button></footer>
+        <footer><button class="button button-ghost" type="button" data-close="card-dialog">Cancel</button><button id="card-add-another" class="button button-secondary" type="submit" name="keepAdding" value="yes">Save + add another</button><button id="card-submit" class="button button-primary" type="submit">Add card</button></footer>
       </form>
     </dialog>
 
@@ -529,13 +642,15 @@ kbd { padding: 1px 6px; color: var(--faint); border: 1px solid var(--border); bo
           <label class="field"><span>What should we call you? (optional)</span><input id="profile-name" name="name" maxlength="60" placeholder="friend"></label>
           <button class="button button-secondary" type="submit">Save name</button>
         </form>
+        <form id="accessibility-form" class="settings-block"><h3>Reading and focus</h3><label class="field"><span>Card text size</span><select id="card-text-size"><option value="normal">Normal</option><option value="large">Large</option><option value="larger">Extra large</option></select></label><label class="check-field"><input id="focus-setting" type="checkbox">Hide distractions during study</label><button class="button button-secondary" type="submit">Save reading settings</button></form>
         <div class="settings-block">
           <h3>Your cards, on this device</h3>
           <p>Cards and study progress save automatically, online or offline. Clearing site data or using a different browser or domain gives you a separate collection.</p>
+          <p id="last-backup" class="backup-status"></p><p>Deleted cards and decks stay in the recycle bin until you restore or permanently remove them. Restore any deleted items you want to include before exporting a backup.</p>
           <p>Download a backup to keep a copy or move your cards. Import adds decks without replacing your current collection.</p>
           <div class="library-tools">
             <button class="button button-secondary" type="button" data-action="backup">Download backup</button>
-            <button class="button button-ghost" type="button" data-action="import">Import JSON</button>
+            <button class="button button-ghost" type="button" data-action="import">Import JSON / CSV</button>
             <button class="button button-ghost" type="button" data-action="keep-storage">Keep storage on device</button>
           </div>
         </div>
@@ -547,6 +662,30 @@ kbd { padding: 1px 6px; color: var(--faint); border: 1px solid var(--border); bo
       </div>
     </dialog>
 
+
+    <dialog id="study-options-dialog" class="modal">
+      <form id="study-options-form"><header><div><span class="section-kicker">YOUR STUDY SESSION</span><h2>How would you like to study?</h2></div><button class="modal-close" type="button" data-close="study-options-dialog" aria-label="Close">×</button></header>
+        <p id="study-options-note" class="field-note"></p>
+        <label class="field"><span>Cards to include</span><select id="study-mode"><option value="due">Due cards</option><option value="difficult">Difficult cards</option><option value="all">All cards</option><option value="favorites">Favourite cards</option></select></label>
+        <label class="field"><span>Session length</span><select id="study-limit"><option value="0">All matching cards</option><option value="5">5 cards</option><option value="10">10 cards</option><option value="20">20 cards</option><option value="50">50 cards</option></select></label>
+        <label class="check-field"><input id="study-shuffle" type="checkbox">Shuffle the cards</label><label class="check-field"><input id="study-reverse" type="checkbox">Show answers first (reverse cards)</label>
+        <footer><button id="study-resume-option" class="button button-secondary hidden" type="button" data-action="resume-study">Resume saved session</button><button id="study-start" class="button button-primary" type="submit">Start session</button></footer>
+      </form>
+    </dialog>
+    <dialog id="bulk-dialog" class="modal modal-wide">
+      <form id="bulk-form"><header><div><span class="section-kicker">MAKE ROOM FOR MORE</span><h2>Add cards in bulk</h2></div><button class="modal-close" type="button" data-close="bulk-dialog" aria-label="Close">×</button></header>
+        <div class="card-fields"><label class="field"><span>Destination</span><select id="bulk-target"></select></label><label id="bulk-title-wrap" class="field"><span>New deck title</span><input id="bulk-title" maxlength="120" placeholder="Imported cards"></label></div>
+        <label class="field"><span>CSV or TSV file (optional)</span><input id="bulk-file" type="file" accept=".csv,.tsv,text/csv,text/tab-separated-values"></label>
+        <label class="field"><span>Paste rows from your notes or spreadsheet</span><textarea id="bulk-text" rows="7" placeholder="Question,Answer,Hint,Tags&#10;What is active recall?,Retrieving an answer from memory,,study"></textarea></label>
+        <label class="field"><span>Separator</span><select id="bulk-separator"><option value="auto">Detect automatically</option><option value="tab">Tab (spreadsheet paste)</option><option value=",">Comma (CSV)</option><option value=";">Semicolon</option></select></label>
+        <p class="field-note">Question and answer are required; hint and tags are optional. Headers may be Front/Back or Question/Answer. Quote CSV fields containing commas. Images travel in JSON backups.</p>
+        <button id="bulk-preview-button" class="button button-secondary" type="button" data-action="preview-bulk">Preview cards</button><div id="bulk-preview" class="bulk-preview" aria-live="polite"></div>
+        <footer><button class="button button-ghost" type="button" data-close="bulk-dialog">Cancel</button><button id="bulk-submit" class="button button-primary" type="submit">Add cards</button></footer>
+      </form>
+    </dialog>
+    <dialog id="transfer-dialog" class="modal"><form id="transfer-form"><header><div><span class="section-kicker">ORGANISE YOUR CARDS</span><h2>Move or copy card</h2></div><button class="modal-close" type="button" data-close="transfer-dialog" aria-label="Close">×</button></header><label class="field"><span>Destination deck</span><select id="transfer-target"></select></label><label class="field"><span>Action</span><select id="transfer-mode"><option value="move">Move card (keep its progress)</option><option value="copy">Copy card (start fresh)</option></select></label><footer><button class="button button-primary" type="submit">Continue</button></footer></form></dialog>
+    <dialog id="trash-dialog" class="modal modal-wide"><div class="settings-content"><header><div><span class="section-kicker">NOT LOST</span><h2>Recycle bin</h2></div><button class="modal-close" type="button" data-close="trash-dialog" aria-label="Close">×</button></header><p class="field-note">Deleted decks and cards stay here until you restore them or empty the bin. Restoring a card also restores its deck if needed.</p><div id="trash-list"></div><button id="empty-trash" class="button button-danger" type="button" data-action="empty-trash">Empty recycle bin</button></div></dialog>
+
     <dialog id="confirm-dialog" class="modal confirm-modal">
       <form method="dialog">
         <div class="confirm-icon" aria-hidden="true">!</div>
@@ -556,7 +695,7 @@ kbd { padding: 1px 6px; color: var(--faint); border: 1px solid var(--border); bo
       </form>
     </dialog>
 
-    <input id="import-file" class="hidden" type="file" accept=".json,application/json" aria-label="Import Petalcards backup">
+    <input id="import-file" class="hidden" type="file" accept=".json,.csv,.tsv,application/json,text/csv,text/tab-separated-values" aria-label="Import Petalcards backup or CSV">
     <dialog id="install-dialog" class="modal">
       <div class="settings-content">
         <header><div><span class="section-kicker">ON YOUR DEVICE</span><h2>Install Petalcards</h2></div><button class="modal-close" type="button" data-close="install-dialog" aria-label="Close">×</button></header>
@@ -577,10 +716,12 @@ let databasePromise;
 function openDatabase() {
   if (!databasePromise) databasePromise = new Promise((resolve, reject) => {
     if (!globalThis.indexedDB) return reject(new Error('This browser cannot save cards. Open Petalcards in a browser with site storage enabled.'));
-    const request = indexedDB.open('petalcards-preview-device', 1);
+    const request = indexedDB.open('petalcards-preview-device', 2);
     request.onupgradeneeded = () => {
-      request.result.createObjectStore('decks', { keyPath: 'id' });
-      request.result.createObjectStore('meta');
+      const db = request.result;
+      if (!db.objectStoreNames.contains('decks')) db.createObjectStore('decks', { keyPath: 'id' });
+      if (!db.objectStoreNames.contains('meta')) db.createObjectStore('meta');
+      if (!db.objectStoreNames.contains('trash')) db.createObjectStore('trash', { keyPath: 'id' });
     };
     request.onblocked = () => reject(new Error('Close other Petalcards tabs, then try again.'));
     request.onerror = () => reject(new Error('Device storage is unavailable. Allow site storage and try again.'));
@@ -593,8 +734,10 @@ function openDatabase() {
   return databasePromise;
 }
 
-async function transaction(names, mode, work) {
+async function transaction(names, mode, work, trackChanges = true) {
   const db = await openDatabase();
+  const changesCards = trackChanges && mode === 'readwrite' && names.includes('decks');
+  names = [...new Set([...names, ...(changesCards ? ['meta'] : [])])];
   return new Promise((resolve, reject) => {
     const tx = db.transaction(names, mode);
     let value, failure;
@@ -608,7 +751,13 @@ async function transaction(names, mode, work) {
         : failure || new Error('Your change could not be saved. Keep this window open and try again.'));
     };
     tx.onerror = () => {};
-    try { work(tx, done, fail); } catch (error) { fail(error); }
+    try {
+      work(tx, done, fail);
+      if (changesCards) {
+        const meta = tx.objectStore('meta');
+        meta.get('revision').onsuccess = (e) => meta.put((e.target.result || 0) + 1, 'revision');
+      }
+    } catch (error) { fail(error); }
   });
 }
 
@@ -624,12 +773,31 @@ function number(value, fallback = 0, max = Number.MAX_SAFE_INTEGER) {
   return Number.isFinite(value) && value >= 0 && value <= max ? value : fallback;
 }
 
+function tags(value) {
+  const items = Array.isArray(value) ? value : String(value || '').split(',');
+  const result = [...new Set(items.map((tag) => text(tag, 'Tag', 30)).filter(Boolean))];
+  if (result.length > 20) throw new Error('Use up to 20 tags.');
+  return result;
+}
+
+function cardImage(value) {
+  if (!value) return null;
+  if (typeof value.src !== 'string' || !/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/]+={0,2}$/.test(value.src) || value.src.length > 2_000_000) {
+    throw new Error('Use a PNG, JPEG or WebP image smaller than 1.5 MB.');
+  }
+  return { src: value.src, alt: text(value.alt, 'Image description', 300) };
+}
+
 function makeCard(values, deckId) {
   return {
     id: crypto.randomUUID(), deckId,
     front: text(values.front, 'Front', 5000, true),
     back: text(values.back, 'Back', 5000, true),
     hint: text(values.hint, 'Hint', 1000),
+    tags: tags(values.tags), favorite: values.favorite === true,
+    frontImage: cardImage(values.frontImage), backImage: cardImage(values.backImage),
+    lapses: Math.floor(number(values.lapses)),
+    recentReviews: (Array.isArray(values.recentReviews) ? values.recentReviews : []).filter((r) => r && number(r.at) > Date.now() - 90 * DAY && RATINGS.includes(r.rating)).slice(-5000).map(({ at, rating }) => ({ at, rating })),
     createdAt: number(values.createdAt, Date.now()), updatedAt: Date.now(),
     dueAt: values.dueAt == null ? null : number(values.dueAt, null, 8.64e15),
     intervalDays: number(values.intervalDays, 0, 36500),
@@ -647,6 +815,7 @@ function makeDeck(values) {
   return {
     id, title: text(values.title, 'Deck title', 120, true),
     description: text(values.description, 'Description', 500),
+    folder: text(values.folder, 'Folder', 60), tags: tags(values.tags), favorite: values.favorite === true,
     accent: ACCENTS.includes(values.accent) ? values.accent : 'rose',
     createdAt: number(values.createdAt, Date.now()), updatedAt: Date.now(),
     cards: (values.cards || []).map((card) => makeCard(card, id)),
@@ -655,7 +824,8 @@ function makeDeck(values) {
 
 function summary(deck) {
   return {
-    ...deck,
+    ...deck, folder: deck.folder || '', tags: deck.tags || [], favorite: deck.favorite || false,
+    searchText: [deck.title, deck.description, deck.folder, ...(deck.tags || []), ...deck.cards.flatMap((c) => [c.front, c.back, c.hint, ...(c.tags || [])])].join(' ').toLowerCase(),
     cardCount: deck.cards.length,
     dueCount: deck.cards.filter((card) => !card.dueAt || card.dueAt <= Date.now()).length,
     mastery: deck.cards.length ? Math.round(100 * deck.cards.filter((card) => card.intervalDays >= 21).length / deck.cards.length) : 0,
@@ -678,17 +848,24 @@ async function initialize() {
       meta.put({ name: 'friend' }, 'profile');
       meta.put('pink', 'theme');
       meta.put(true, 'initialized');
+      meta.put(1, 'revision');
     };
-  });
+  }, false);
   return dashboard();
 }
 
 async function dashboard() {
   return transaction(['decks', 'meta'], 'readonly', (tx, done) => {
-    const result = { profile: { name: 'friend' }, theme: 'pink' };
+    const result = { profile: { name: 'friend' }, theme: 'pink', ui: {}, backup: {} };
+    for (const key of ['revision', 'backupRevision', 'backupAt', 'backupSnooze']) {
+      tx.objectStore('meta').get(key).onsuccess = (e) => { result.backup[key] = e.target.result || 0; };
+    }
+    tx.objectStore('meta').get('ui').onsuccess = (e) => { result.ui = e.target.result || {}; };
+    tx.objectStore('meta').get('session').onsuccess = (e) => { result.session = e.target.result || null; };
     tx.objectStore('meta').get('profile').onsuccess = (e) => { result.profile = e.target.result || result.profile; };
     tx.objectStore('meta').get('theme').onsuccess = (e) => { result.theme = e.target.result || 'pink'; };
     tx.objectStore('decks').getAll().onsuccess = (e) => {
+      result.progress = progressStats(e.target.result);
       result.decks = e.target.result.sort((a, b) => b.updatedAt - a.updatedAt).map((deck) => {
         const { cards, ...overview } = summary(deck);
         return overview;
@@ -697,7 +874,7 @@ async function dashboard() {
       result.stats = {
         decks: decks.length, cards: decks.reduce((n, d) => n + d.cardCount, 0),
         due: decks.reduce((n, d) => n + d.dueCount, 0),
-        mastery: decks.length ? Math.round(decks.reduce((n, d) => n + d.mastery, 0) / decks.length) : 0,
+        mastery: result.progress.mastery,
       };
     };
     done(result);
@@ -742,11 +919,22 @@ function updateDeck(id, values) {
     deck.title = text(values.title, 'Deck title', 120, true);
     deck.description = text(values.description, 'Description', 500);
     deck.accent = ACCENTS.includes(values.accent) ? values.accent : deck.accent;
+    deck.folder = text(values.folder, 'Folder', 60);
+    deck.tags = tags(values.tags);
   });
 }
 
 function deleteDeck(id) {
-  return transaction(['decks'], 'readwrite', (tx) => tx.objectStore('decks').delete(id));
+  return transaction(['decks', 'trash'], 'readwrite', (tx, done, fail) => {
+    tx.objectStore('decks').get(id).onsuccess = (e) => {
+      const deck = e.target.result;
+      if (!deck) return fail(new Error('This deck no longer exists.'));
+      const item = { id: crypto.randomUUID(), kind: 'deck', deck, deletedAt: Date.now() };
+      tx.objectStore('trash').put(item);
+      tx.objectStore('decks').delete(id);
+      done(item);
+    };
+  });
 }
 
 function createCard(deckId, values) {
@@ -766,15 +954,28 @@ function updateCard(deckId, cardId, values) {
     card.front = text(values.front, 'Front', 5000, true);
     card.back = text(values.back, 'Back', 5000, true);
     card.hint = text(values.hint, 'Hint', 1000);
+    card.tags = tags(values.tags);
+    card.frontImage = cardImage(values.frontImage);
+    card.backImage = cardImage(values.backImage);
     card.updatedAt = Date.now();
     return { card };
   });
 }
 
 function deleteCard(deckId, cardId) {
-  return editDeck(deckId, (deck) => {
-    existingCard(deck, cardId);
-    deck.cards = deck.cards.filter((card) => card.id !== cardId);
+  return transaction(['decks', 'trash'], 'readwrite', (tx, done, fail) => {
+    const store = tx.objectStore('decks');
+    store.get(deckId).onsuccess = (e) => {
+      try {
+        const deck = e.target.result;
+        if (!deck) throw new Error('This deck no longer exists.');
+        const card = existingCard(deck, cardId);
+        const item = { id: crypto.randomUUID(), kind: 'card', card, deck: { ...deck, cards: [] }, position: deck.cards.indexOf(card), deletedAt: Date.now() };
+        tx.objectStore('trash').put(item);
+        deck.cards = deck.cards.filter((c) => c.id !== cardId);
+        deck.updatedAt = Date.now(); store.put(deck); done(item);
+      } catch (error) { fail(error); }
+    };
   });
 }
 
@@ -789,16 +990,42 @@ function nextReview(card, rating) {
   return { intervalDays: Math.min(interval, 36500), ease };
 }
 
-function reviewCard(deckId, cardId, rating) {
-  return editDeck(deckId, (deck) => {
-    const card = existingCard(deck, cardId);
-    Object.assign(card, nextReview(card, rating));
-    card.dueAt = Date.now() + Math.round(card.intervalDays * DAY);
-    card.reviewCount += 1;
-    if (rating === 'good' || rating === 'easy') card.correctCount += 1;
-    card.lastRating = rating;
-    card.updatedAt = Date.now();
-    return { card };
+function applyRating(card, rating) {
+  Object.assign(card, nextReview(card, rating));
+  card.dueAt = Date.now() + Math.round(card.intervalDays * DAY);
+  card.reviewCount += 1;
+  if (rating === 'good' || rating === 'easy') card.correctCount += 1;
+  if (rating === 'again') card.lapses = (card.lapses || 0) + 1;
+  card.lastRating = rating;
+  card.updatedAt = Date.now();
+  card.recentReviews = [...(card.recentReviews || []).filter((r) => r.at > Date.now() - 90 * DAY), { at: Date.now(), rating }].slice(-5000);
+}
+
+function reviewCard(deckId, cardId, rating, sessionId = null) {
+  return transaction(['decks', 'meta'], 'readwrite', (tx, done, fail) => {
+    const meta = tx.objectStore('meta');
+    const store = tx.objectStore('decks');
+    meta.get('session').onsuccess = (event) => {
+      const session = event.target.result;
+      if (sessionId && (!session || session.id !== sessionId)) return fail(new Error('This session changed in another tab. Reopen it to continue.'));
+      store.get(deckId).onsuccess = (e) => {
+        try {
+          const deck = e.target.result;
+          if (!deck) throw new Error('This deck no longer exists.');
+          const card = existingCard(deck, cardId);
+          if (!sessionId || !session.ratings[cardId]) {
+            applyRating(card, rating); store.put(deck);
+            if (sessionId) {
+              session.ratings[cardId] = rating;
+              session.index = Math.min(session.index + 1, session.cardIds.length);
+              session.flipped = false; session.updatedAt = Date.now();
+              meta.put(session, 'session');
+            }
+          }
+          done({ card, session: sessionId ? session : null });
+        } catch (error) { fail(error); }
+      };
+    };
   });
 }
 
@@ -816,8 +1043,9 @@ function setProfile(name) {
 
 function backup() {
   return transaction(['meta', 'decks'], 'readonly', (tx, done) => {
-    const result = { format: 'petalcards-backup', version: 1, exportedAt: new Date().toISOString() };
+    const result = { format: 'petalcards-backup', version: 2, exportedAt: new Date().toISOString() };
     tx.objectStore('meta').get('profile').onsuccess = (e) => { result.profile = e.target.result; };
+    tx.objectStore('meta').get('revision').onsuccess = (e) => { result.revision = e.target.result || 0; };
     tx.objectStore('meta').get('theme').onsuccess = (e) => { result.theme = e.target.result; };
     tx.objectStore('decks').getAll().onsuccess = (e) => { result.decks = e.target.result; };
     done(result);
@@ -826,7 +1054,7 @@ function backup() {
 
 function importLibrary(payload, { sourceId } = {}) {
   if (!payload || typeof payload !== 'object') throw new Error('Choose a Petalcards JSON backup or deck export.');
-  if (payload.version !== undefined && payload.version !== 1) throw new Error('This backup version is not supported.');
+  if (payload.version !== undefined && ![1, 2].includes(payload.version)) throw new Error('This backup version is not supported.');
   const raw = payload.decks || (payload.deck ? [payload.deck] : null);
   if (!Array.isArray(raw) || raw.length > 1000) throw new Error('Choose a backup with no more than 1,000 decks.');
   if (raw.reduce((n, deck) => n + (Array.isArray(deck?.cards) ? deck.cards.length : 0), 0) > 50000) throw new Error('Import up to 50,000 cards at a time.');
@@ -837,14 +1065,151 @@ function importLibrary(payload, { sourceId } = {}) {
     const write = () => {
       for (const deck of decks) tx.objectStore('decks').add(deck);
       if (sourceId) meta.put(true, `imported:${sourceId}`);
+      if (decks.length) meta.get('revision').onsuccess = (e) => meta.put((e.target.result || 0) + 1, 'revision');
       done(decks.length);
     };
     if (sourceId) meta.get(`imported:${sourceId}`).onsuccess = (e) => e.target.result ? done(0) : write();
     else write();
+  }, false);
+}
+
+function isDifficult(card) {
+  return ['again', 'hard'].includes(card.lastRating) || (card.reviewCount >= 3 && card.correctCount / card.reviewCount < 0.7);
+}
+
+function progressStats(decks) {
+  const cards = decks.flatMap((deck) => deck.cards.map((card) => ({ ...card, deckTitle: deck.title, deckId: deck.id })));
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const upcoming = Array.from({ length: 7 }, (_, i) => {
+    const from = new Date(today); from.setDate(from.getDate() + i);
+    const to = new Date(from); to.setDate(to.getDate() + 1);
+    return { date: from.toISOString(), count: cards.filter((c) => i === 0 ? (!c.dueAt || c.dueAt < to.getTime()) : c.dueAt >= from.getTime() && c.dueAt < to.getTime()).length };
+  });
+  return {
+    mastery: cards.length ? Math.round(100 * cards.filter((c) => c.intervalDays >= 21).length / cards.length) : 0,
+    todayCards: cards.filter((c) => (c.recentReviews || []).some((r) => r.at >= today.getTime())).length,
+    todayReviews: cards.reduce((n, c) => n + (c.recentReviews || []).filter((r) => r.at >= today.getTime()).length, 0),
+    upcoming,
+    difficult: cards.filter(isDifficult).sort((a, b) => (b.lapses || 0) - (a.lapses || 0)).slice(0, 5).map(({ id, deckId, deckTitle, front, lapses }) => ({ id, deckId, deckTitle, front, lapses: lapses || 0 })),
+  };
+}
+
+function markBackup(revision) {
+  return transaction(['meta'], 'readwrite', (tx) => {
+    tx.objectStore('meta').put(Date.now(), 'backupAt');
+    tx.objectStore('meta').put(revision, 'backupRevision');
   });
 }
 
-return { initialize, dashboard, getDeck, createDeck, updateDeck, deleteDeck, createCard, updateCard, deleteCard, nextReview, reviewCard, setTheme, setProfile, backup, importLibrary };
+function snoozeBackup() {
+  return transaction(['meta'], 'readwrite', (tx) => tx.objectStore('meta').put(Date.now() + DAY, 'backupSnooze'));
+}
+
+function setUI(values) {
+  const ui = { cardSize: ['normal', 'large', 'larger'].includes(values.cardSize) ? values.cardSize : 'normal', focus: values.focus === true };
+  return transaction(['meta'], 'readwrite', (tx, done) => { tx.objectStore('meta').put(ui, 'ui'); done(ui); });
+}
+
+function toggleFavorite(deckId, cardId = null) {
+  return editDeck(deckId, (deck) => {
+    const item = cardId ? existingCard(deck, cardId) : deck;
+    item.favorite = !item.favorite;
+  });
+}
+
+function addCards(deckId, values) {
+  if (!Array.isArray(values) || !values.length || values.length > 5000) throw new Error('Add between 1 and 5,000 cards at a time.');
+  const cards = values.map((v) => makeCard(v, deckId));
+  return editDeck(deckId, (deck) => { deck.cards.push(...cards); return { count: cards.length }; });
+}
+
+function transferCard(sourceId, cardId, targetId, copy = false) {
+  return transaction(['decks'], 'readwrite', (tx, done, fail) => {
+    const store = tx.objectStore('decks');
+    store.get(sourceId).onsuccess = (e) => {
+      const source = e.target.result;
+      store.get(targetId).onsuccess = (event) => {
+        try {
+          if (!source || !event.target.result) throw new Error('Choose an existing destination deck.');
+          if (!copy && sourceId === targetId) throw new Error('Choose another deck to move this card.');
+          const target = sourceId === targetId ? source : event.target.result;
+          const original = existingCard(source, cardId);
+          const card = copy ? makeCard({ ...original, reviewCount: 0, correctCount: 0, intervalDays: 0, dueAt: null, lastRating: null, lapses: 0, recentReviews: [], ease: 2.5 }, targetId) : { ...original, deckId: targetId };
+          if (!copy) source.cards = source.cards.filter((c) => c.id !== cardId);
+          target.cards.push(card); target.updatedAt = Date.now();
+          if (sourceId !== targetId && !copy) { source.updatedAt = Date.now(); store.put(source); }
+          store.put(target); done({ card });
+        } catch (error) { fail(error); }
+      };
+    };
+  });
+}
+
+function getTrash() {
+  return transaction(['trash'], 'readonly', (tx, done) => {
+    tx.objectStore('trash').getAll().onsuccess = (e) => done(e.target.result.sort((a, b) => b.deletedAt - a.deletedAt));
+  });
+}
+
+function restoreTrash(id) {
+  return transaction(['decks', 'trash'], 'readwrite', (tx, done, fail) => {
+    const trash = tx.objectStore('trash'), decks = tx.objectStore('decks');
+    trash.get(id).onsuccess = (e) => {
+      const item = e.target.result;
+      if (!item) return fail(new Error('This item has already been restored or removed.'));
+      decks.get(item.deck.id).onsuccess = (event) => {
+        const current = event.target.result;
+        const deck = current || { ...item.deck, cards: [] };
+        const restored = item.kind === 'deck' ? item.deck.cards : [item.card];
+        const ids = new Set(deck.cards.map((c) => c.id));
+        const missing = restored.filter((c) => !ids.has(c.id));
+        if (item.kind === 'card') deck.cards.splice(Math.min(item.position, deck.cards.length), 0, ...missing);
+        else deck.cards.push(...missing);
+        deck.updatedAt = Date.now(); decks.put(deck); trash.delete(id); done({ deck: summary(deck) });
+      };
+    };
+  });
+}
+
+function emptyTrash() {
+  return transaction(['trash'], 'readwrite', (tx) => tx.objectStore('trash').clear());
+}
+
+function getSession() {
+  return transaction(['meta'], 'readonly', (tx, done) => {
+    tx.objectStore('meta').get('session').onsuccess = (e) => done(e.target.result || null);
+  });
+}
+
+async function beginSession(deckId, options = {}) {
+  const { deck } = await getDeck(deckId);
+  const mode = ['all', 'due', 'difficult', 'favorites'].includes(options.mode) ? options.mode : 'due';
+  let cards = deck.cards.filter((c) => mode === 'all' || (mode === 'due' && (!c.dueAt || c.dueAt <= Date.now())) || (mode === 'difficult' && isDifficult(c)) || (mode === 'favorites' && c.favorite));
+  if (!cards.length) throw new Error('No cards match this study option. Choose another group.');
+  if (options.shuffle) {
+    for (let i = cards.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [cards[i], cards[j]] = [cards[j], cards[i]]; }
+  }
+  const limit = Number(options.limit) || cards.length;
+  cards = cards.slice(0, Math.max(1, Math.min(limit, cards.length)));
+  const session = { id: crypto.randomUUID(), deckId, deckTitle: deck.title, cardIds: cards.map((c) => c.id), index: 0, flipped: false, ratings: {}, reverse: options.reverse === true, mode, updatedAt: Date.now() };
+  await transaction(['meta'], 'readwrite', (tx) => tx.objectStore('meta').put(session, 'session'));
+  return session;
+}
+
+function saveSession(session) {
+  return transaction(['meta'], 'readwrite', (tx, done, fail) => {
+    const store = tx.objectStore('meta');
+    store.get('session').onsuccess = (e) => {
+      const current = e.target.result;
+      if (!current || current.id !== session.id) return fail(new Error('This session changed in another tab. Reopen it to continue.'));
+      const result = { ...session, ratings: { ...session.ratings, ...current.ratings }, updatedAt: Date.now() };
+      delete result.saving;
+      store.put(result, 'session'); done(result);
+    };
+  });
+}
+
+return { initialize, dashboard, getDeck, createDeck, updateDeck, deleteDeck, createCard, updateCard, deleteCard, nextReview, reviewCard, setTheme, setProfile, backup, importLibrary, isDifficult, markBackup, snoozeBackup, setUI, toggleFavorite, addCards, transferCard, getTrash, restoreTrash, emptyTrash, getSession, beginSession, saveSession };
 })();
 function safeFilename(value) {
   return String(value || 'petalcards-deck').normalize('NFKD').replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-+|-+$/g, '').toLowerCase().slice(0, 80) || 'petalcards-deck';
@@ -857,7 +1222,7 @@ function deckCSV(deck) {
     if (/^[\s]*[=+@-]/.test(text) || /^[\t\r]/.test(text)) text = `'${text}`;
     return `"${text.replaceAll('"', '""')}"`;
   };
-  return '\uFEFF' + [['Front', 'Back', 'Hint'], ...deck.cards.map(({ front, back, hint }) => [front, back, hint])].map((row) => row.map(cell).join(',')).join('\r\n');
+  return '\uFEFF' + [['Front', 'Back', 'Hint', 'Tags'], ...deck.cards.map(({ front, back, hint, tags }) => [front, back, hint, (tags || []).join(', ')])].map((row) => row.map(cell).join(',')).join('\r\n');
 }
 
 function downloadFile(content, filename, type) {
@@ -866,6 +1231,85 @@ function downloadFile(content, filename, type) {
   link.href = url; link.download = filename;
   document.body.append(link); link.click(); link.remove();
   setTimeout(() => URL.revokeObjectURL(url), 60000);
+}
+
+function escapeHtml(value) {
+  return String(value ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;');
+}
+
+// Only three inline formats are supported. All original HTML remains escaped.
+function richText(value) {
+  return escapeHtml(value).replace(/(\*\*[^*\n]+\*\*|`[^`\n]+`|\*[^*\n]+\*)/g, (part) => {
+    if (part.startsWith('**')) return `<strong>${part.slice(2, -2)}</strong>`;
+    if (part.startsWith('`')) return `<code>${part.slice(1, -1)}</code>`;
+    return `<em>${part.slice(1, -1)}</em>`;
+  }).replaceAll('\n', '<br>');
+}
+
+function parseCards(input, delimiter = 'auto') {
+  const source = String(input).replace(/^\uFEFF/, '');
+  if (!source.trim()) throw new Error('Paste your questions and answers or choose a CSV file.');
+  if (delimiter === 'auto') {
+    let inQuote = false, tabs = 0, commas = 0, semicolons = 0;
+    for (const char of source) {
+      if (char === '"') inQuote = !inQuote;
+      if (!inQuote && char === '\n') break;
+      if (!inQuote) { if (char === '\t') tabs++; if (char === ',') commas++; if (char === ';') semicolons++; }
+    }
+    delimiter = tabs ? '\t' : semicolons > commas ? ';' : ',';
+  }
+  if (!['\t', ',', ';'].includes(delimiter)) throw new Error('Choose a valid separator.');
+  const rows = []; let row = [], cell = '', quoted = false, closed = false;
+  const field = () => { row.push(cell); cell = ''; closed = false; };
+  for (let i = 0; i <= source.length; i++) {
+    const char = source[i];
+    if (quoted) {
+      if (char === undefined) throw new Error('A quoted field is missing its closing quote.');
+      if (char === '"') {
+        if (source[i + 1] === '"') { cell += '"'; i++; }
+        else { quoted = false; closed = true; }
+      } else cell += char;
+    } else if (char === delimiter) field();
+    else if (char === '\n' || char === '\r' || char === undefined) {
+      field(); if (row.some((v) => v.trim())) rows.push(row); row = [];
+      if (char === '\r' && source[i + 1] === '\n') i++;
+    } else if (char === '"' && !cell && !closed) quoted = true;
+    else {
+      if (closed && char.trim()) throw new Error('Unexpected text after a closing quote. Check your CSV separators.');
+      if (!closed) cell += char;
+    }
+  }
+  if (!rows.length) throw new Error('No cards were found.');
+  const header = rows[0].map((v) => v.trim().toLowerCase());
+  const front = header.findIndex((v) => ['front', 'question'].includes(v));
+  const back = header.findIndex((v) => ['back', 'answer'].includes(v));
+  const hasHeader = front >= 0 && back >= 0;
+  const columns = hasHeader ? { front, back, hint: header.indexOf('hint'), tags: header.indexOf('tags') } : { front: 0, back: 1, hint: 2, tags: 3 };
+  const data = hasHeader ? rows.slice(1) : rows;
+  if (!data.length || data.length > 5000) throw new Error('Import between 1 and 5,000 cards at a time.');
+  return data.map((values, i) => {
+    if (!hasHeader && values.length > 4) throw new Error(`Row ${i + 1} has too many columns. Choose the correct separator or quote text containing commas.`);
+    const result = Object.fromEntries(Object.entries(columns).map(([key, index]) => [key, values[index]?.trim() || '']));
+    if (!result.front || !result.back) throw new Error(`Row ${i + (hasHeader ? 2 : 1)} needs both a question and an answer.`);
+    if (result.front.length > 5000 || result.back.length > 5000 || result.hint.length > 1000) throw new Error(`Row ${i + 1} contains too much text.`);
+    return result;
+  });
+}
+
+async function readCardImage(file) {
+  if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type) || file.size > 8 * 1024 * 1024) throw new Error('Choose a PNG, JPEG or WebP image under 8 MB.');
+  let bitmap;
+  try { bitmap = await createImageBitmap(file); } catch { throw new Error('This image could not be opened. Try a different image.'); }
+  try {
+    if (bitmap.width * bitmap.height > 40_000_000) throw new Error('Choose an image smaller than 40 megapixels.');
+    const scale = Math.min(1, 1200 / Math.max(bitmap.width, bitmap.height));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.max(1, Math.round(bitmap.width * scale)); canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+    canvas.getContext('2d').drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    const src = canvas.toDataURL('image/webp', 0.84);
+    if (src.length > 2_000_000) throw new Error('This image is too large to save. Try a smaller image.');
+    return { src, alt: '' };
+  } finally { bitmap.close(); }
 }
 
 const THEMES = ['pink', 'purple', 'blue', 'green', 'berry', 'grey'];
@@ -878,29 +1322,29 @@ const state = {
   study: null,
   search: '',
   confirmAction: null,
+  ui: {}, progress: {}, backup: {}, savedSession: null,
+  folder: '', tag: '', favorites: false,
+  cardSearch: '', cardFavorites: false, cardPage: 0,
+  frontImage: null, backImage: null, transferCardId: null, pendingDeckId: null,
 };
 
 const $ = (selector, parent = document) => parent.querySelector(selector);
 const $$ = (selector, parent = document) => [...parent.querySelectorAll(selector)];
 const byId = (id) => document.getElementById(id);
 
-function escapeHtml(value) {
-  return String(value ?? '')
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;');
-}
-
-function toast(message, kind = 'success') {
+function toast(message, kind = 'success', undo = null) {
   const item = document.createElement('div');
   item.className = `toast ${kind === 'error' ? 'error' : ''}`;
   const text = document.createElement('span');
   text.textContent = message;
   item.append(text);
+  if (undo) {
+    const button = document.createElement('button'); button.type = 'button'; button.textContent = 'Undo';
+    button.addEventListener('click', async () => { button.disabled = true; try { await undo(); item.remove(); } catch (error) { toast(error.message, 'error'); button.disabled = false; } });
+    item.append(button);
+  }
   byId('toast-region').append(item);
-  window.setTimeout(() => item.remove(), 3600);
+  window.setTimeout(() => item.remove(), undo ? 10000 : 5000);
 }
 
 function setBusy(form, busy) {
@@ -932,8 +1376,10 @@ function timeGreeting() {
 }
 
 function showView(id) {
+  const changed = byId(id).classList.contains('hidden');
+  document.body.classList.toggle('study-focus', id === 'study-view' && state.ui.focus === true);
   $$('.view', byId('app-shell')).forEach((view) => view.classList.toggle('hidden', view.id !== id));
-  window.scrollTo({ top: 0, behavior: 'instant' });
+  if (changed) window.scrollTo({ top: 0, behavior: 'instant' });
 }
 
 function updateHeader() {
@@ -945,6 +1391,7 @@ function updateHeader() {
 }
 
 function showApp(payload) {
+  applyPayload(payload);
   state.profile = payload.profile;
   state.decks = payload.decks || [];
   state.stats = payload.stats || { decks: 0, cards: 0, due: 0, mastery: 0 };
@@ -960,38 +1407,73 @@ function plural(count, singular, pluralText = `${singular}s`) {
   return `${count} ${count === 1 ? singular : pluralText}`;
 }
 
+function applyPayload(payload) {
+  state.profile = payload.profile; state.decks = payload.decks; state.stats = payload.stats;
+  state.ui = payload.ui || {}; state.progress = payload.progress || {}; state.backup = payload.backup || {};
+  state.savedSession = payload.session;
+  document.documentElement.dataset.cardSize = state.ui.cardSize || 'normal';
+}
+
 function renderDashboard() {
   updateHeader();
-  byId('stat-decks').textContent = state.stats.decks;
-  byId('stat-cards').textContent = state.stats.cards;
-  byId('stat-due').textContent = state.stats.due;
+  for (const key of ['decks', 'cards', 'due']) byId(`stat-${key}`).textContent = state.stats[key];
   byId('stat-mastery').textContent = `${state.stats.mastery}%`;
   byId('deck-count-label').textContent = plural(state.decks.length, 'deck');
-
+  const folders = [...new Set(state.decks.map((d) => d.folder).filter(Boolean))].sort();
+  const tags = [...new Set(state.decks.flatMap((d) => d.tags || []))].sort();
+  byId('folder-filter').innerHTML = '<option value="">All folders</option>' + folders.map((value) => `<option>${escapeHtml(value)}</option>`).join('');
+  byId('tag-filter').innerHTML = '<option value="">All tags</option>' + tags.map((value) => `<option>${escapeHtml(value)}</option>`).join('');
+  if (!folders.includes(state.folder)) state.folder = '';
+  if (!tags.includes(state.tag)) state.tag = '';
+  byId('folder-filter').value = state.folder; byId('tag-filter').value = state.tag;
+  byId('favorite-filter').setAttribute('aria-pressed', String(state.favorites));
   const query = state.search.trim().toLowerCase();
-  const visible = state.decks.filter((deck) => `${deck.title} ${deck.description}`.toLowerCase().includes(query));
+  const visible = state.decks.filter((d) => (!query || (d.searchText || `${d.title} ${d.description}`.toLowerCase()).includes(query)) && (!state.folder || d.folder === state.folder) && (!state.tag || d.tags?.includes(state.tag)) && (!state.favorites || d.favorite));
   const grid = byId('deck-grid');
   grid.innerHTML = visible.map((deck) => `
     <article class="deck-card accent-${deck.accent}" data-action="open-deck" data-deck-id="${deck.id}" tabindex="0" aria-label="Open ${escapeHtml(deck.title)}">
-      <div class="deck-cover"><span class="deck-bloom">✿</span></div>
-      <div class="deck-body">
-        <h3>${escapeHtml(deck.title)}</h3>
-        <p>${escapeHtml(deck.description || 'A collection ready to grow.')}</p>
+      <div class="deck-cover"><span class="deck-bloom">✿</span><button class="favorite-button" type="button" data-action="favorite-deck" data-deck-id="${deck.id}" aria-label="Favourite ${escapeHtml(deck.title)}" aria-pressed="${Boolean(deck.favorite)}">${deck.favorite ? '★' : '☆'}</button></div>
+      <div class="deck-body"><h3>${escapeHtml(deck.title)}</h3><p>${escapeHtml(deck.description || 'A collection ready to grow.')}</p>
+        <div class="tag-list">${deck.folder ? `<span>▰ ${escapeHtml(deck.folder)}</span>` : ''}${(deck.tags || []).map((tag) => `<span>${escapeHtml(tag)}</span>`).join('')}</div>
         <div class="deck-meta"><span>${plural(deck.cardCount, 'card')}</span><span>${deck.dueCount ? `${deck.dueCount} due` : 'All caught up'}</span></div>
-        <div class="deck-progress" title="${deck.mastery}% mastery"><progress max="100" value="${Math.max(2, deck.mastery)}" aria-label="${deck.mastery}% mastery"></progress></div>
-      </div>
-      <button class="deck-study" type="button" data-action="study-deck" data-deck-id="${deck.id}" aria-label="Study ${escapeHtml(deck.title)}" title="Study this deck">▶</button>
-    </article>
-  `).join('');
-  grid.classList.toggle('hidden', visible.length === 0);
-  byId('empty-decks').classList.toggle('hidden', state.decks.length !== 0 || Boolean(query));
-  byId('no-search-results').classList.toggle('hidden', !query || visible.length !== 0);
+        <div class="deck-progress"><progress max="100" value="${deck.mastery}" aria-label="${deck.mastery}% mastery"></progress></div>
+      </div><button class="deck-study" type="button" data-action="study-deck" data-deck-id="${deck.id}" aria-label="Study ${escapeHtml(deck.title)}">▶</button>
+    </article>`).join('');
+  grid.classList.toggle('hidden', !visible.length);
+  const filtering = Boolean(query || state.folder || state.tag || state.favorites);
+  byId('empty-decks').classList.toggle('hidden', Boolean(state.decks.length || filtering));
+  byId('no-search-results').classList.toggle('hidden', visible.length > 0 || !filtering);
+  renderProgress(); renderBackupStatus(); renderResume();
+}
+
+function renderProgress() {
+  const data = state.progress;
+  byId('today-summary').textContent = `${plural(data.todayCards || 0, 'card')} reviewed today · ${data.todayReviews || 0} reviews`;
+  const max = Math.max(1, ...(data.upcoming || []).map((d) => d.count));
+  byId('upcoming-reviews').innerHTML = (data.upcoming || []).map((day, i) => `<div class="upcoming-row"><span>${i === 0 ? 'Today' : new Date(day.date).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric' })}</span><progress max="${max}" value="${day.count}" aria-label="${day.count} scheduled cards"></progress><b>${day.count}</b></div>`).join('');
+  byId('difficult-cards').innerHTML = data.difficult?.length ? data.difficult.map((c) => `<button class="practice-link" type="button" data-action="find-card" data-deck-id="${c.deckId}" data-card-id="${c.id}"><b>${escapeHtml(c.front.slice(0, 90))}</b><small>${escapeHtml(c.deckTitle)} · ${c.lapses} Again ratings recorded</small></button>`).join('') : '<p class="field-note">Cards that need more practice will appear here as you study.</p>';
+}
+
+function renderBackupStatus() {
+  const backup = state.backup;
+  const changes = Math.max(0, (backup.revision || 0) - (backup.backupRevision || 0));
+  const last = backup.backupAt ? new Date(backup.backupAt).toLocaleString() : 'No backup exported yet';
+  byId('last-backup').textContent = `Last backup export: ${last}. ${changes} changes since then.`;
+  const due = changes >= 20 || (changes > 0 && backup.backupAt && Date.now() - backup.backupAt > 7 * 86400000) || (!backup.backupAt && changes >= 5);
+  byId('backup-reminder').classList.toggle('hidden', !due || (backup.backupSnooze || 0) > Date.now());
+  byId('backup-reminder-text').textContent = `${changes} changes since your last backup. Save a copy before clearing site data or changing devices.`;
+}
+
+function renderResume() {
+  const session = state.savedSession;
+  const deck = session && state.decks.find((d) => d.id === session.deckId);
+  const finished = session && session.cardIds.every((id) => session.ratings[id]);
+  byId('resume-banner').classList.toggle('hidden', !deck || finished);
+  if (deck) byId('resume-text').textContent = `${deck.title} · ${Object.keys(session.ratings).length} of ${session.cardIds.length} rated`;
 }
 
 async function refreshDecks() {
-  const payload = await library.dashboard();
-  state.decks = payload.decks;
-  state.stats = payload.stats;
+  applyPayload(await library.dashboard());
   renderDashboard();
 }
 
@@ -1029,24 +1511,37 @@ function renderDeck() {
       </details>
     </div>`;
 
+  renderCards();
+}
+
+function renderCards() {
+  const deck = state.currentDeck;
+  if (!deck) return;
+  const query = state.cardSearch.trim().toLowerCase();
+  const visible = deck.cards.filter((c) => (!state.cardFavorites || c.favorite) && (!query || [c.front, c.back, c.hint, ...(c.tags || [])].join(' ').toLowerCase().includes(query)));
+  const pages = Math.max(1, Math.ceil(visible.length / 20));
+  state.cardPage = Math.min(state.cardPage, pages - 1);
+  const start = state.cardPage * 20;
   const list = byId('card-list');
-  list.innerHTML = deck.cards.map((card, index) => `
-    <article class="library-card" data-card-id="${card.id}">
-      <div class="card-copy"><small>FRONT · ${index + 1}</small><p>${escapeHtml(card.front)}</p></div>
-      <span class="divider" aria-hidden="true"></span>
-      <div class="card-copy"><small>BACK · ${formatDue(card)}</small><p>${escapeHtml(card.back)}</p></div>
-      <div class="card-tools">
-        <button class="tiny-button" type="button" data-action="edit-card" data-card-id="${card.id}" aria-label="Edit card" title="Edit">✎</button>
-        <button class="tiny-button danger" type="button" data-action="delete-card" data-card-id="${card.id}" aria-label="Delete card" title="Delete">×</button>
-      </div>
+  list.innerHTML = visible.slice(start, start + 20).map((card, index) => `
+    <article class="library-card" data-card-id="${card.id}" tabindex="-1">
+      <div class="card-copy"><small>FRONT · ${start + index + 1}${card.frontImage ? ' · IMAGE' : ''}</small><p>${escapeHtml(card.front)}</p><div class="tag-list">${(card.tags || []).map((tag) => `<span>${escapeHtml(tag)}</span>`).join('')}</div></div>
+      <span class="divider" aria-hidden="true"></span><div class="card-copy"><small>BACK · ${formatDue(card)}${card.backImage ? ' · IMAGE' : ''}</small><p>${escapeHtml(card.back)}</p></div>
+      <div class="card-tools"><button class="tiny-button" type="button" data-action="favorite-card" data-card-id="${card.id}" aria-label="Favourite card" aria-pressed="${Boolean(card.favorite)}">${card.favorite ? '★' : '☆'}</button><button class="tiny-button" type="button" data-action="edit-card" data-card-id="${card.id}" aria-label="Edit card">✎</button><button class="tiny-button" type="button" data-action="transfer-card" data-card-id="${card.id}" aria-label="Move or copy card">⇄</button><button class="tiny-button danger" type="button" data-action="delete-card" data-card-id="${card.id}" aria-label="Delete card">×</button></div>
     </article>`).join('');
-  list.classList.toggle('hidden', deck.cards.length === 0);
+  byId('card-results').textContent = visible.length ? `Showing ${start + 1}–${Math.min(start + 20, visible.length)} of ${plural(visible.length, 'card')}` : deck.cards.length ? 'No matching cards. Try another search or turn off favourites.' : '';
+  list.classList.toggle('hidden', !visible.length);
   byId('empty-cards').classList.toggle('hidden', deck.cards.length !== 0);
+  byId('card-pagination').classList.toggle('hidden', pages === 1);
+  byId('card-page-label').textContent = `Page ${state.cardPage + 1} of ${pages}`;
+  byId('cards-prev').disabled = state.cardPage === 0; byId('cards-next').disabled = state.cardPage + 1 >= pages;
+  byId('card-favorite-filter').setAttribute('aria-pressed', String(state.cardFavorites));
 }
 
 async function openDeck(deckId) {
   try {
     const payload = await library.getDeck(deckId);
+    if (state.currentDeck?.id !== deckId) { state.cardPage = 0; state.cardSearch = ''; state.cardFavorites = false; byId('card-search').value = ''; }
     state.currentDeck = payload.deck;
     renderDeck();
     showView('deck-view');
@@ -1063,25 +1558,37 @@ function openDeckDialog(mode = 'create') {
   byId('deck-id').value = deck?.id || '';
   byId('deck-title').value = deck?.title || '';
   byId('deck-description').value = deck?.description || '';
+  byId('deck-folder').value = deck?.folder || '';
+  byId('deck-tags').value = (deck?.tags || []).join(', ');
+  byId('folder-options').innerHTML = [...new Set(state.decks.map((d) => d.folder).filter(Boolean))].map((v) => `<option value="${escapeHtml(v)}"></option>`).join('');
   const accent = deck?.accent || 'rose';
   $$('#deck-form input[name="accent"]').forEach((input) => { input.checked = input.value === accent; });
   byId('deck-dialog').showModal();
   byId('deck-title').focus();
 }
 
+let imageEditVersion = 0;
 function openCardDialog(card = null) {
+  imageEditVersion++;
   byId('card-dialog-title').textContent = card ? 'Edit this card' : 'Add a card';
   byId('card-submit').textContent = card ? 'Save changes' : 'Add card';
   byId('card-id').value = card?.id || '';
   byId('card-front').value = card?.front || '';
   byId('card-back').value = card?.back || '';
   byId('card-hint').value = card?.hint || '';
-  byId('card-dialog').showModal();
+  byId('card-tags').value = (card?.tags || []).join(', ');
+  state.frontImage = card?.frontImage || null; state.backImage = card?.backImage || null;
+  byId('front-image-file').value = ''; byId('back-image-file').value = '';
+  renderEditorImages();
+  if (!byId('card-dialog').open) byId('card-dialog').showModal();
   byId('card-front').focus();
 }
 
 function openSettings() {
   byId('profile-name').value = state.profile.name === 'friend' ? '' : state.profile.name;
+  byId('card-text-size').value = state.ui.cardSize || 'normal';
+  byId('focus-setting').checked = state.ui.focus === true;
+  renderBackupStatus();
   byId('settings-dialog').showModal();
 }
 
@@ -1093,143 +1600,196 @@ function openConfirm({ title, message, confirmText = 'Delete', action }) {
   byId('confirm-dialog').showModal();
 }
 
-function dueCards(cards) {
-  const now = Date.now();
-  return cards.filter((card) => !card.dueAt || card.dueAt <= now);
-}
-
 async function startStudy(deckId) {
   try {
-    if (!state.currentDeck || state.currentDeck.id !== deckId) {
-      const payload = await library.getDeck(deckId);
-      state.currentDeck = payload.deck;
-    }
-    if (!state.currentDeck.cards.length) {
-      toast('Add at least one card before studying.', 'error');
-      renderDeck();
-      showView('deck-view');
-      return;
-    }
-    const ready = dueCards(state.currentDeck.cards);
-    state.study = {
-      deckId,
-      cards: [...(ready.length ? ready : state.currentDeck.cards)],
-      index: 0,
-      flipped: false,
-      hintVisible: false,
-      reviewed: 0,
-    };
-    byId('study-deck-name').textContent = state.currentDeck.title;
-    showView('study-view');
-    renderStudyCard();
-  } catch (error) {
-    toast(error.message, 'error');
-  }
+    const { deck } = await library.getDeck(deckId);
+    if (!deck.cards.length) { toast('Add at least one card before studying.', 'error'); await openDeck(deckId); return; }
+    state.pendingDeckId = deckId;
+    state.savedSession = await library.getSession();
+    const saved = state.savedSession && !state.savedSession.cardIds.every((id) => state.savedSession.ratings[id]);
+    byId('study-options-note').textContent = saved ? `A session in “${state.savedSession.deckTitle}” is saved. You can resume it, or start a new session here.` : `${deck.title} · ${plural(deck.cards.length, 'card')}. Moving between cards does not grade them.`;
+    byId('study-resume-option').classList.toggle('hidden', !saved);
+    byId('study-mode').value = deck.dueCount ? 'due' : 'all';
+    byId('study-start').textContent = saved ? 'Start a new session' : 'Start session';
+    byId('study-options-dialog').showModal();
+  } catch (error) { toast(error.message, 'error'); }
 }
 
-function ratingIntervals(card) {
-  return Object.fromEntries(['again', 'hard', 'good', 'easy'].map((rating) => {
-    const days = library.nextReview(card, rating).intervalDays;
-    return [rating, days < 1 ? `${Math.round(days * 1440)}m` : `${Math.round(days)}d`];
-  }));
+async function mountSession(session) {
+  if (!session) throw new Error('There is no saved study session yet.');
+  const { deck } = await library.getDeck(session.deckId);
+  const currentId = session.cardIds[session.index];
+  const available = new Set(deck.cards.map((c) => c.id));
+  session.cardIds = session.cardIds.filter((id) => available.has(id));
+  if (!session.cardIds.length) throw new Error('These cards have been moved or deleted. Start another session.');
+  session.ratings = Object.fromEntries(Object.entries(session.ratings).filter(([id]) => available.has(id)));
+  session.index = currentId && available.has(currentId) ? session.cardIds.indexOf(currentId) : Math.min(session.index, session.cardIds.length);
+  state.study = await library.saveSession(session);
+  state.currentDeck = deck;
+  byId('study-options-dialog').close();
+  byId('study-deck-name').textContent = deck.title;
+  showView('study-view'); renderStudyCard();
+}
+
+function currentStudyCard() {
+  return state.currentDeck?.cards.find((card) => card.id === state.study?.cardIds[state.study.index]);
+}
+
+function cardFace(text, image, label, className, hidden) {
+  return `<span id="${className}-face" class="flash-face ${className}" aria-hidden="${hidden}"><span class="face-label">${label}</span><span class="rich-card-content">${image ? `<img class="study-image" src="${image.src}" alt="${escapeHtml(image.alt || 'Card illustration')}">` : ''}<span>${richText(text)}</span></span></span>`;
 }
 
 function renderStudyCard() {
   const session = state.study;
   if (!session) return;
-  if (session.index >= session.cards.length) {
-    renderStudyComplete();
-    return;
-  }
-  session.flipped = false;
-  session.hintVisible = false;
-  const card = session.cards[session.index];
-  const intervals = ratingIntervals(card);
-  byId('study-counter').textContent = `${session.index + 1} of ${session.cards.length}`;
-  byId('study-progress-bar').value = (session.index / session.cards.length) * 100;
+  if (session.index >= session.cardIds.length) { renderStudyComplete(); return; }
+  const card = currentStudyCard();
+  if (!card) { toast('This card is no longer available. Reopen your session.', 'error'); return; }
+  const reviewed = Object.keys(session.ratings).length;
+  byId('study-counter').textContent = `Card ${session.index + 1} of ${session.cardIds.length} · ${reviewed} rated`;
+  byId('study-progress-bar').value = 100 * reviewed / session.cardIds.length;
+  const first = session.reverse ? { text: card.back, image: card.backImage, label: 'ANSWER' } : { text: card.front, image: card.frontImage, label: 'QUESTION' };
+  const second = session.reverse ? { text: card.front, image: card.frontImage, label: 'QUESTION' } : { text: card.back, image: card.backImage, label: 'ANSWER' };
+  const rated = session.ratings[card.id];
+  const sessionCards = new Map(state.currentDeck.cards.map((item) => [item.id, item]));
   byId('study-stage').innerHTML = `
-    <div class="flip-scene">
-      <button id="active-flashcard" class="flashcard" type="button" data-action="flip-card" aria-label="Flashcard front. Press to reveal the answer" aria-pressed="false">
-        <span class="flash-face flash-front"><span class="face-label">QUESTION</span><p>${escapeHtml(card.front)}</p><span class="flip-note">click or press space to reveal</span></span>
-        <span class="flash-face flash-back"><span class="face-label">ANSWER</span><p>${escapeHtml(card.back)}</p><span class="flip-note">rate your recall below</span></span>
-      </button>
-    </div>
-    <div id="study-hint" class="study-hint">${card.hint ? '<button class="hint-button" type="button" data-action="toggle-hint">Need a hint?</button>' : '&nbsp;'}</div>
-    <div class="rating-area">
-      <div id="rating-controls" class="hidden">
-        <p class="rating-prompt">How did that feel?</p>
-        <div class="rating-buttons">
-          <button class="rating-button rating-again" type="button" data-action="rate-card" data-rating="again"><b>Again</b><small>1 · ${intervals.again}</small></button>
-          <button class="rating-button rating-hard" type="button" data-action="rate-card" data-rating="hard"><b>Hard</b><small>2 · ${intervals.hard}</small></button>
-          <button class="rating-button rating-good" type="button" data-action="rate-card" data-rating="good"><b>Good</b><small>3 · ${intervals.good}</small></button>
-          <button class="rating-button rating-easy" type="button" data-action="rate-card" data-rating="easy"><b>Easy</b><small>4 · ${intervals.easy}</small></button>
-        </div>
-      </div>
-    </div>
-    <p class="study-help">Space to flip · 1–4 to rate · Esc to leave</p>`;
-  byId('active-flashcard').focus();
+    <div class="study-toolbar"><label>Jump to card <select id="study-jump">${session.cardIds.map((id, i) => `<option value="${i}" ${i === session.index ? 'selected' : ''}>${i + 1}. ${escapeHtml((sessionCards.get(id)?.front || 'Card').slice(0, 55))}${session.ratings[id] ? ' ✓' : ''}</option>`).join('')}</select></label><button class="button button-ghost" type="button" data-action="focus-study" aria-pressed="${Boolean(state.ui.focus)}">${state.ui.focus ? 'Show navigation' : 'Focus view'}</button></div>
+    <div class="flip-scene card-enter"><button id="active-flashcard" class="flashcard ${session.flipped ? 'is-flipped' : ''}" type="button" data-action="flip-card" aria-labelledby="${session.flipped ? 'flash-back-face' : 'flash-front-face'}" aria-description="Press to reveal the other side." aria-label="${session.flipped ? 'Answer revealed. Flip back' : 'Reveal the other side'}" aria-pressed="${Boolean(session.flipped)}">${cardFace(first.text, first.image, first.label, 'flash-front', Boolean(session.flipped))}${cardFace(second.text, second.image, second.label, 'flash-back', !session.flipped)}</button></div>
+    <div class="study-navigation"><button class="button button-ghost" type="button" data-action="previous-card" ${session.index === 0 ? 'disabled' : ''}>← Previous</button><button class="button button-secondary" type="button" data-action="flip-card">${session.flipped ? 'Show first side' : 'Reveal answer'}</button><button class="button button-ghost" type="button" data-action="next-card">${session.index + 1 === session.cardIds.length ? 'Finish' : 'Next →'}</button></div>
+    <div id="study-hint" class="study-hint">${card.hint ? '<button class="hint-button" type="button" data-action="toggle-hint">Show hint</button>' : ''}</div>
+    <div class="rating-area"><div id="rating-controls" class="${!session.flipped ? 'concealed' : ''}"><p class="rating-prompt">${rated ? `Rated ${escapeHtml(rated)} · already saved for this session` : 'How did that feel?'}</p><div class="rating-buttons">${['again', 'hard', 'good', 'easy'].map((rating, i) => { const days = library.nextReview(card, rating).intervalDays; const interval = days < 1 ? `${Math.round(days * 1440)}m` : `${Math.round(days)}d`; return `<button class="rating-button rating-${rating}" type="button" data-action="rate-card" data-rating="${rating}" ${rated ? 'disabled' : ''}><b>${rating[0].toUpperCase() + rating.slice(1)}</b><small>${i + 1} · ${interval}</small></button>`; }).join('')}</div></div></div>
+    <p class="study-help">Space to flip · ← → to move · 1–4 to rate · swipe to move on touch screens<br>Navigation never changes a rating. Your position saves automatically.</p>`;
+  byId('active-flashcard').focus({ preventScroll: true });
 }
 
-function flipCard() {
-  if (!state.study || state.study.flipped) return;
-  state.study.flipped = true;
-  const card = byId('active-flashcard');
-  card?.classList.add('is-flipped');
-  card?.setAttribute('aria-pressed', 'true');
-  card?.setAttribute('aria-label', 'Flashcard answer');
-  byId('rating-controls')?.classList.remove('hidden');
+async function flipCard() {
+  const session = state.study;
+  if (!session || session.saving || session.index >= session.cardIds.length || Date.now() < (state.suppressFlipUntil || 0)) return;
+  session.saving = true;
+  try {
+    const next = await library.saveSession({ ...session, flipped: !session.flipped });
+    if (state.study !== session) return;
+    state.study = next;
+    const element = byId('active-flashcard');
+    element.classList.toggle('is-flipped', next.flipped);
+    element.setAttribute('aria-pressed', String(next.flipped));
+    element.setAttribute('aria-labelledby', next.flipped ? 'flash-back-face' : 'flash-front-face');
+    element.setAttribute('aria-label', next.flipped ? 'Answer revealed. Flip back' : 'Reveal the other side');
+    $('.flash-front', element).setAttribute('aria-hidden', String(next.flipped));
+    $('.flash-back', element).setAttribute('aria-hidden', String(!next.flipped));
+    byId('rating-controls').classList.toggle('concealed', !next.flipped);
+    $('.study-navigation [data-action="flip-card"]').textContent = next.flipped ? 'Show first side' : 'Reveal answer';
+  } catch (error) { session.saving = false; toast(error.message, 'error'); }
+}
+
+async function navigateStudy(index) {
+  const session = state.study;
+  if (!session || session.saving) return;
+  const nextIndex = Math.max(0, Math.min(index, session.cardIds.length));
+  session.saving = true;
+  try {
+    const next = await library.saveSession({ ...session, index: nextIndex, flipped: false });
+    if (state.study !== session) return;
+    state.study = next; renderStudyCard();
+  } catch (error) { session.saving = false; toast(error.message, 'error'); }
 }
 
 function toggleHint() {
-  const session = state.study;
-  if (!session) return;
-  const card = session.cards[session.index];
-  session.hintVisible = true;
-  byId('study-hint').textContent = card.hint;
+  const card = currentStudyCard();
+  if (card) byId('study-hint').textContent = card.hint;
 }
 
 async function rateCard(rating) {
   const session = state.study;
-  if (!session || !session.flipped || session.saving) return;
+  const card = currentStudyCard();
+  if (!session || !card || !session.flipped || session.saving || session.ratings[card.id]) return;
   session.saving = true;
-  const card = session.cards[session.index];
   $$('.rating-button').forEach((button) => { button.disabled = true; });
   try {
-    const payload = await library.reviewCard(session.deckId, card.id, rating);
-    if (state.study !== session || !state.currentDeck) return;
-    const position = state.currentDeck.cards.findIndex((item) => item.id === card.id);
-    if (position >= 0) state.currentDeck.cards[position] = payload.card;
-    session.reviewed += 1;
-    session.index += 1;
-    window.setTimeout(() => { if (state.study === session) { session.saving = false; renderStudyCard(); } }, 170);
-  } catch (error) {
-    toast(error.message, 'error');
-    session.saving = false;
-    $$('.rating-button').forEach((button) => { button.disabled = false; });
-  }
+    const payload = await library.reviewCard(session.deckId, card.id, rating, session.id);
+    if (state.study !== session) return;
+    state.currentDeck.cards[state.currentDeck.cards.findIndex((c) => c.id === card.id)] = payload.card;
+    state.study = payload.session; renderStudyCard();
+  } catch (error) { session.saving = false; toast(error.message, 'error'); renderStudyCard(); }
 }
 
 function renderStudyComplete() {
-  byId('study-counter').textContent = 'Complete';
-  byId('study-progress-bar').value = 100;
-  byId('study-stage').innerHTML = `
-    <section class="study-complete">
-      <div class="completion-bloom" aria-hidden="true">✿</div>
-      <h2>Session complete</h2>
-      <p>You reviewed ${plural(state.study.reviewed, 'card')}. A little progress today becomes a lot of knowledge later.</p>
-      <div class="completion-actions">
-        <button class="button button-ghost" type="button" data-action="exit-study">Back to deck</button>
-        <button class="button button-primary" type="button" data-action="study-again">Study again</button>
-      </div>
-    </section>`;
-  refreshDecks().catch(() => {});
+  const session = state.study;
+  const reviewed = Object.keys(session.ratings).length;
+  const remaining = session.cardIds.length - reviewed;
+  byId('study-counter').textContent = `${reviewed} of ${session.cardIds.length} rated`;
+  byId('study-progress-bar').value = 100 * reviewed / session.cardIds.length;
+  byId('study-stage').innerHTML = `<section class="study-complete"><div class="completion-bloom" aria-hidden="true">✿</div><h2>${remaining ? 'A good place to pause' : 'Session complete'}</h2><p>You reviewed ${plural(reviewed, 'card')}.${remaining ? ` ${plural(remaining, 'card')} left unrated. Their schedules have not changed.` : ' Your progress is saved.'}</p><div class="completion-actions">${remaining ? '<button class="button button-primary" type="button" data-action="study-remaining">Review remaining</button>' : ''}<button class="button button-ghost" type="button" data-action="previous-card">← Revisit last card</button><button class="button button-secondary" type="button" data-action="exit-study">Back to deck</button></div></section>`;
+  refreshDecks().catch((error) => toast(error.message, 'error'));
 }
 
 async function exitStudy() {
+  if (state.study?.saving) return;
   const deckId = state.study?.deckId || state.currentDeck?.id;
   state.study = null;
+  await refreshDecks();
   if (deckId) await openDeck(deckId);
   else showView('dashboard-view');
+}
+
+function renderEditorImages() {
+  for (const side of ['front', 'back']) {
+    const image = state[`${side}Image`];
+    const preview = byId(`${side}-image-preview`);
+    preview.classList.toggle('hidden', !image);
+    if (image) preview.src = image.src; else preview.removeAttribute('src');
+    byId(`${side}-image-alt`).value = image?.alt || '';
+  }
+}
+
+async function refreshCurrentDeck() {
+  if (state.currentDeck) { state.currentDeck = (await library.getDeck(state.currentDeck.id)).deck; renderDeck(); }
+  await refreshDecks();
+}
+
+function clearCardFilters() {
+  state.cardSearch = ''; state.cardFavorites = false; byId('card-search').value = '';
+}
+
+async function showTrash() {
+  const items = await library.getTrash();
+  byId('trash-list').innerHTML = items.length ? items.map((item) => `<div class="trash-item"><div><b>${escapeHtml(item.kind === 'deck' ? item.deck.title : item.card.front.slice(0, 100))}</b><p>${item.kind === 'deck' ? plural(item.deck.cards.length, 'card') : `Card from ${escapeHtml(item.deck.title)}`} · ${new Date(item.deletedAt).toLocaleDateString()}</p></div><button class="button button-secondary" type="button" data-action="restore-trash" data-trash-id="${item.id}">Restore</button></div>`).join('') : '<p class="empty-state compact">Your recycle bin is empty.</p>';
+  byId('empty-trash').disabled = !items.length;
+  if (!byId('trash-dialog').open) byId('trash-dialog').showModal();
+}
+
+function showBulk({ text = '', title = 'Imported cards', newDeck = false } = {}) {
+  byId('bulk-target').innerHTML = '<option value="new">Create a new deck</option>' + state.decks.map((d) => `<option value="${d.id}">${escapeHtml(d.title)}</option>`).join('');
+  byId('bulk-target').value = !newDeck && state.currentDeck ? state.currentDeck.id : 'new';
+  byId('bulk-title').value = title;
+  byId('bulk-text').value = text; byId('bulk-separator').value = 'auto'; byId('bulk-file').value = '';
+  byId('bulk-preview').replaceChildren(); updateBulkTarget();
+  byId('bulk-dialog').showModal();
+}
+
+function updateBulkTarget() {
+  const isNew = byId('bulk-target').value === 'new';
+  byId('bulk-title-wrap').classList.toggle('hidden', !isNew); byId('bulk-title').required = isNew;
+}
+
+function parsedBulk() {
+  const separator = byId('bulk-separator').value;
+  return parseCards(byId('bulk-text').value, separator === 'tab' ? '\t' : separator);
+}
+
+function previewBulk() {
+  try {
+    const cards = parsedBulk();
+    byId('bulk-preview').innerHTML = `<p><b>${plural(cards.length, 'card')} ready to add.</b>${cards.length > 5 ? ' First five shown below.' : ''}</p><table><thead><tr><th>Question</th><th>Answer</th></tr></thead><tbody>${cards.slice(0, 5).map((c) => `<tr><td>${escapeHtml(c.front)}</td><td>${escapeHtml(c.back)}</td></tr>`).join('')}</tbody></table>`;
+  } catch (error) { byId('bulk-preview').textContent = error.message; }
+}
+
+async function downloadBackup() {
+  const payload = await library.backup();
+  downloadFile(JSON.stringify(payload, null, 2), `petalcards-backup-${new Date().toISOString().slice(0, 10)}.json`, 'application/json');
+  await library.markBackup(payload.revision);
+  await refreshDecks();
+  toast('Backup export started. Keep the downloaded file somewhere safe.');
 }
 
 document.addEventListener('click', async (event) => {
@@ -1249,10 +1809,12 @@ document.addEventListener('click', async (event) => {
   const target = event.target.closest('[data-action]');
   if (!target) return;
   const action = target.dataset.action;
+  try {
   if (action === 'dashboard') {
+    if (state.study?.saving) return;
     state.currentDeck = null;
     state.study = null;
-    renderDashboard();
+    await refreshDecks();
     showView('dashboard-view');
   } else if (action === 'new-deck') {
     openDeckDialog();
@@ -1264,13 +1826,14 @@ document.addEventListener('click', async (event) => {
     const deck = state.currentDeck;
     openConfirm({
       title: 'Delete this deck?',
-      message: `“${deck.title}” and all ${plural(deck.cardCount, 'card')} will be permanently deleted.`,
+      message: `“${deck.title}” and all ${plural(deck.cardCount, 'card')} will move to the recycle bin. You can restore them later.`,
+      confirmText: 'Move to bin',
       action: async () => {
-        await library.deleteDeck(deck.id);
+        const deleted = await library.deleteDeck(deck.id);
         state.currentDeck = null;
         await refreshDecks();
         showView('dashboard-view');
-        toast('Deck deleted.');
+        toast('Deck moved to the recycle bin.', 'success', async () => { await library.restoreTrash(deleted.id); await refreshDecks(); });
       },
     });
   } else if (action === 'new-card') {
@@ -1281,12 +1844,13 @@ document.addEventListener('click', async (event) => {
     const card = state.currentDeck.cards.find((item) => item.id === target.dataset.cardId);
     openConfirm({
       title: 'Delete this card?',
-      message: `“${card.front.slice(0, 80)}${card.front.length > 80 ? '…' : ''}” will be permanently deleted.`,
+      message: `“${card.front.slice(0, 80)}${card.front.length > 80 ? '…' : ''}” will move to the recycle bin.`,
+      confirmText: 'Move to bin',
       action: async () => {
-        await library.deleteCard(state.currentDeck.id, card.id);
+        const deleted = await library.deleteCard(state.currentDeck.id, card.id);
         await openDeck(state.currentDeck.id);
         await refreshDecks();
-        toast('Card deleted.');
+        toast('Card moved to the recycle bin.', 'success', async () => { await library.restoreTrash(deleted.id); await refreshCurrentDeck(); });
       },
     });
   } else if (action === 'study-deck') {
@@ -1299,10 +1863,17 @@ document.addEventListener('click', async (event) => {
     await rateCard(target.dataset.rating);
   } else if (action === 'exit-study') {
     await exitStudy();
-  } else if (action === 'study-again') {
-    const deckId = state.study.deckId;
-    state.study = null;
-    await startStudy(deckId);
+  } else if (action === 'previous-card') {
+    await navigateStudy(state.study.index - 1);
+  } else if (action === 'next-card') {
+    await navigateStudy(state.study.index + 1);
+  } else if (action === 'study-remaining') {
+    await navigateStudy(state.study.cardIds.findIndex((id) => !state.study.ratings[id]));
+  } else if (action === 'resume-study') {
+    await mountSession(await library.getSession());
+  } else if (action === 'focus-study') {
+    state.ui = await library.setUI({ ...state.ui, focus: !state.ui.focus });
+    document.body.classList.toggle('study-focus', state.ui.focus); renderStudyCard();
   } else if (action === 'settings') {
     openSettings();
   } else if (action === 'retry-storage') {
@@ -1311,28 +1882,64 @@ document.addEventListener('click', async (event) => {
     try {
       const { deck } = await library.getDeck(state.currentDeck.id);
       const csv = target.dataset.format === 'csv';
-      downloadFile(csv ? deckCSV(deck) : JSON.stringify({ version: 1, deck }, null, 2), `${safeFilename(deck.title)}.${csv ? 'csv' : 'json'}`, csv ? 'text/csv;charset=utf-8' : 'application/json');
+      downloadFile(csv ? deckCSV(deck) : JSON.stringify({ version: 2, deck }, null, 2), `${safeFilename(deck.title)}.${csv ? 'csv' : 'json'}`, csv ? 'text/csv;charset=utf-8' : 'application/json');
     } catch (error) { toast(error.message, 'error'); }
   } else if (action === 'backup') {
-    try {
-      downloadFile(JSON.stringify(await library.backup(), null, 2), `petalcards-backup-${new Date().toISOString().slice(0, 10)}.json`, 'application/json');
-    } catch (error) { toast(error.message, 'error'); }
+    await downloadBackup();
   } else if (action === 'import') {
     byId('import-file').click();
+  } else if (action === 'snooze-backup') {
+    await library.snoozeBackup(); await refreshDecks();
+  } else if (action === 'bulk-add') {
+    showBulk();
+  } else if (action === 'preview-bulk') {
+    previewBulk();
+  } else if (action === 'trash') {
+    await showTrash();
+  } else if (action === 'restore-trash') {
+    target.disabled = true;
+    try { await library.restoreTrash(target.dataset.trashId); await showTrash(); await refreshCurrentDeck(); toast('Restored to your collection.'); }
+    finally { target.disabled = false; }
+  } else if (action === 'empty-trash') {
+    openConfirm({ title: 'Empty the recycle bin?', message: 'Permanently remove every item in the bin? This cannot be undone.', confirmText: 'Empty bin', action: async () => { await library.emptyTrash(); await showTrash(); } });
+  } else if (action === 'favorite-deck') {
+    await library.toggleFavorite(target.dataset.deckId); await refreshDecks();
+  } else if (action === 'favorite-card') {
+    await library.toggleFavorite(state.currentDeck.id, target.dataset.cardId); await refreshCurrentDeck();
+  } else if (action === 'filter-favorites') {
+    state.favorites = !state.favorites; renderDashboard();
+  } else if (action === 'filter-card-favorites') {
+    state.cardFavorites = !state.cardFavorites; state.cardPage = 0; renderCards();
+  } else if (action === 'cards-prev' || action === 'cards-next') {
+    state.cardPage += action === 'cards-prev' ? -1 : 1; renderCards(); byId('card-list').scrollIntoView({ block: 'start', behavior: 'smooth' });
+  } else if (action === 'transfer-card') {
+    state.transferCardId = target.dataset.cardId;
+    byId('transfer-target').innerHTML = state.decks.map((d) => `<option value="${d.id}">${escapeHtml(d.title)}</option>`).join('');
+    byId('transfer-target').value = state.decks.find((d) => d.id !== state.currentDeck.id)?.id || state.currentDeck.id;
+    byId('transfer-mode').value = state.decks.length === 1 ? 'copy' : 'move';
+    byId('transfer-dialog').showModal();
+  } else if (action === 'find-card') {
+    await openDeck(target.dataset.deckId); clearCardFilters();
+    state.cardPage = Math.floor(state.currentDeck.cards.findIndex((c) => c.id === target.dataset.cardId) / 20); renderCards();
+    const row = document.querySelector(`.library-card[data-card-id="${target.dataset.cardId}"]`); row?.focus(); row?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  } else if (action === 'remove-image') {
+    state[`${target.dataset.side}Image`] = null; renderEditorImages();
   } else if (action === 'keep-storage') {
     const kept = await navigator.storage?.persist?.().catch(() => false);
     toast(kept ? 'Persistent storage enabled. Keep downloading backups too.' : 'Cards still save automatically. Download backups to keep another copy.');
   }
+  } catch (error) { toast(error.message, 'error'); }
 });
 
 document.addEventListener('keydown', (event) => {
-  const typing = ['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName);
-  if (event.key === '/' && !typing && state.profile && !state.study) {
+  const typing = ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName);
+  if (event.key === '/' && !typing && state.profile && !state.study && !document.querySelector('dialog[open]')) {
     event.preventDefault();
     byId('deck-search').focus();
   }
   if (event.key === 'Escape' && state.study && !document.querySelector('dialog[open]')) exitStudy();
   if (!state.study || typing || document.querySelector('dialog[open]')) return;
+  if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') { event.preventDefault(); navigateStudy(state.study.index + (event.key === 'ArrowRight' ? 1 : -1)); return; }
   if (event.code === 'Space') {
     event.preventDefault();
     flipCard();
@@ -1378,13 +1985,18 @@ byId('card-form').addEventListener('submit', async (event) => {
   const values = Object.fromEntries(new FormData(form));
   const id = values.id;
   delete values.id;
+  if (pendingImages) return;
+  const another = event.submitter?.id === 'card-add-another';
+  values.frontImage = state.frontImage ? { ...state.frontImage, alt: byId('front-image-alt').value } : null;
+  values.backImage = state.backImage ? { ...state.backImage, alt: byId('back-image-alt').value } : null;
   setBusy(form, true);
   try {
     if (id) await library.updateCard(state.currentDeck.id, id, values);
     else await library.createCard(state.currentDeck.id, values);
-    byId('card-dialog').close();
-    await openDeck(state.currentDeck.id);
-    await refreshDecks();
+    clearCardFilters();
+    await refreshCurrentDeck();
+    if (another) { openCardDialog(); window.setTimeout(() => byId('card-front').focus(), 0); }
+    else { byId('card-dialog').close(); if (!id) { state.cardPage = Math.max(0, Math.ceil(state.currentDeck.cards.length / 20) - 1); renderCards(); } }
     toast(id ? 'Card updated.' : 'Card added.');
   } catch (error) {
     toast(error.message, 'error');
@@ -1442,8 +2054,10 @@ byId('import-file').addEventListener('change', async (event) => {
   const file = event.target.files[0];
   if (!file) return;
   try {
-    if (file.size > 50 * 1024 * 1024) throw new Error('Choose a JSON file smaller than 50 MB.');
-    const payload = JSON.parse(await file.text());
+    if (file.size > 50 * 1024 * 1024) throw new Error('Choose a file smaller than 50 MB.');
+    const content = await file.text();
+    if (/\.(csv|tsv)$/i.test(file.name)) { showBulk({ text: content, title: file.name.replace(/\.[^.]+$/, ''), newDeck: true }); previewBulk(); return; }
+    const payload = JSON.parse(content);
     const count = await library.importLibrary(payload);
     await refreshDecks();
     toast(`Imported ${plural(count, 'deck')}. Your existing decks are unchanged.`);
@@ -1451,6 +2065,97 @@ byId('import-file').addEventListener('change', async (event) => {
     toast(error instanceof SyntaxError ? 'This file is not valid JSON. Choose a Petalcards backup or deck export.' : error.message, 'error');
   } finally { event.target.value = ''; }
 });
+
+byId('folder-filter').addEventListener('change', (event) => { state.folder = event.target.value; renderDashboard(); });
+byId('tag-filter').addEventListener('change', (event) => { state.tag = event.target.value; renderDashboard(); });
+byId('card-search').addEventListener('input', (event) => { state.cardSearch = event.target.value; state.cardPage = 0; renderCards(); });
+byId('bulk-target').addEventListener('change', updateBulkTarget);
+byId('bulk-text').addEventListener('input', () => byId('bulk-preview').replaceChildren());
+byId('bulk-separator').addEventListener('change', () => byId('bulk-preview').replaceChildren());
+byId('bulk-file').addEventListener('change', async (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+  try {
+    if (file.size > 10 * 1024 * 1024) throw new Error('Choose a CSV or TSV file under 10 MB.');
+    byId('bulk-text').value = await file.text(); previewBulk();
+  } catch (error) { toast(error.message, 'error'); }
+});
+
+byId('bulk-form').addEventListener('submit', async (event) => {
+  event.preventDefault(); const form = event.currentTarget;
+  setBusy(form, true);
+  try {
+    const cards = parsedBulk();
+    let deckId = byId('bulk-target').value;
+    if (deckId === 'new') deckId = (await library.createDeck({ title: byId('bulk-title').value, cards })).deck.id;
+    else await library.addCards(deckId, cards);
+    byId('bulk-dialog').close(); await refreshDecks(); clearCardFilters();
+    await openDeck(deckId); state.cardPage = Math.max(0, Math.ceil(state.currentDeck.cards.length / 20) - 1); renderCards();
+    toast(`Added ${plural(cards.length, 'card')}.`);
+  } catch (error) { toast(error.message, 'error'); byId('bulk-preview').textContent = error.message; }
+  finally { setBusy(form, false); }
+});
+
+byId('transfer-form').addEventListener('submit', async (event) => {
+  event.preventDefault(); const form = event.currentTarget; setBusy(form, true);
+  try {
+    const copy = byId('transfer-mode').value === 'copy';
+    await library.transferCard(state.currentDeck.id, state.transferCardId, byId('transfer-target').value, copy);
+    byId('transfer-dialog').close(); await refreshCurrentDeck(); toast(copy ? 'Card copied with fresh study progress.' : 'Card moved with its study progress.');
+  } catch (error) { toast(error.message, 'error'); }
+  finally { setBusy(form, false); }
+});
+
+byId('study-options-form').addEventListener('submit', async (event) => {
+  event.preventDefault(); const form = event.currentTarget; setBusy(form, true);
+  try {
+    const session = await library.beginSession(state.pendingDeckId, { mode: byId('study-mode').value, limit: byId('study-limit').value, shuffle: byId('study-shuffle').checked, reverse: byId('study-reverse').checked });
+    await mountSession(session);
+  } catch (error) { toast(error.message, 'error'); }
+  finally { setBusy(form, false); }
+});
+
+document.addEventListener('change', (event) => {
+  if (event.target.id === 'study-jump') navigateStudy(Number(event.target.value));
+});
+let touchStart;
+byId('study-stage').addEventListener('pointerdown', (event) => {
+  if (event.pointerType === 'touch' && event.target.closest('.flip-scene')) touchStart = { x: event.clientX, y: event.clientY };
+});
+byId('study-stage').addEventListener('pointercancel', () => { touchStart = null; });
+byId('study-stage').addEventListener('pointerup', (event) => {
+  if (!touchStart || !state.study) return;
+  const dx = event.clientX - touchStart.x, dy = event.clientY - touchStart.y; touchStart = null;
+  if (Math.abs(dx) > 65 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+    state.suppressFlipUntil = Date.now() + 450;
+    navigateStudy(state.study.index + (dx < 0 ? 1 : -1));
+  }
+});
+
+byId('accessibility-form').addEventListener('submit', async (event) => {
+  event.preventDefault(); const form = event.currentTarget; setBusy(form, true);
+  try {
+    state.ui = await library.setUI({ cardSize: byId('card-text-size').value, focus: byId('focus-setting').checked });
+    document.documentElement.dataset.cardSize = state.ui.cardSize;
+    document.body.classList.toggle('study-focus', Boolean(state.study && state.ui.focus));
+    toast('Reading settings saved.');
+  } catch (error) { toast(error.message, 'error'); }
+  finally { setBusy(form, false); }
+});
+
+let pendingImages = 0;
+for (const side of ['front', 'back']) {
+  byId(`${side}-image-alt`).addEventListener('input', (event) => { if (state[`${side}Image`]) state[`${side}Image`].alt = event.target.value; });
+  byId(`${side}-image-file`).addEventListener('change', async (event) => {
+    const file = event.target.files[0]; if (!file) return;
+    const editVersion = imageEditVersion;
+    pendingImages++;
+    byId('card-submit').disabled = byId('card-add-another').disabled = true;
+    try { const image = await readCardImage(file); if (editVersion !== imageEditVersion || !byId('card-dialog').open) return; image.alt = byId(`${side}-image-alt`).value; state[`${side}Image`] = image; renderEditorImages(); }
+    catch (error) { toast(error.message, 'error'); }
+    finally { pendingImages--; byId('card-submit').disabled = byId('card-add-another').disabled = pendingImages > 0; event.target.value = ''; }
+  });
+}
 
 async function copyPreviousCards() {}
 

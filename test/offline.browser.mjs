@@ -58,7 +58,9 @@ try {
   await page.click('#card-submit');
   await page.waitForFunction(() => document.querySelector('#card-list').textContent.includes('Xylem tissue'));
   await page.click('#deck-hero [data-action="study-deck"]');
+  await page.click('#study-start');
   await page.click('#active-flashcard');
+  await page.waitForSelector('#active-flashcard[aria-pressed="true"]');
   await page.keyboard.press('3');
   await page.keyboard.press('3');
   await page.waitForSelector('.study-complete');
@@ -102,8 +104,8 @@ try {
   const exported = JSON.parse(readFileSync(await json.path(), 'utf8'));
   assert.equal(exported.deck.cards[0].reviewCount, 1);
   await page.click('[data-action="dashboard"]');
-  const backupPending = page.waitForEvent('download');
-  await page.locator('#dashboard-view [data-action="backup"]').click();
+  const backupPending = page.waitForEvent('download'); backupPending.catch(() => {});
+  await page.locator('.decks-section .library-tools [data-action="backup"]').click();
   const backupDownload = await backupPending;
   const backupContent = readFileSync(await backupDownload.path());
   const backupPath = join(directory, 'backup.json');
@@ -139,7 +141,7 @@ try {
   await page.setViewportSize({ width: 390, height: 844 });
   assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'phone layout must not overflow');
   await page.click('#settings-button');
-  assert.equal(await page.locator('#settings-dialog input').count(), 1);
+  assert.equal(await page.locator('#settings-dialog input[type=email], #settings-dialog input[type=password]').count(), 0);
   await page.fill('#profile-name', 'Chabi');
   await page.locator('#profile-form button').click();
   await page.waitForFunction(() => document.querySelector('#user-name-short').textContent === 'Chabi');
