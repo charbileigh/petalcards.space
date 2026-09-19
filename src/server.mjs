@@ -20,6 +20,7 @@ import {
 const ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const PUBLIC_DIR = join(ROOT, 'public');
 const SESSION_SECONDS = 60 * 60 * 24 * 30;
+const GUEST_SECONDS = 60 * 60 * 24 * 365;
 const JSON_LIMIT = 1_000_000;
 const RATINGS = new Set(['again', 'hard', 'good', 'easy']);
 const loginAttempts = new Map();
@@ -131,8 +132,9 @@ function assertSameOrigin(request) {
 }
 
 function authenticate(request, db, required = true) {
-  const token = parseCookies(request.headers.cookie).petalcards_session;
-  const session = token ? db.getSession(hashSessionToken(token)) : null;
+  const cookies = parseCookies(request.headers.cookie);
+  const session = [cookies.petalcards_session, cookies.petalcards_guest]
+    .filter(Boolean).map((token) => db.getSession(hashSessionToken(token))).find(Boolean);
   if (!session && required) throw new AppError(401, 'Please sign in to continue.', 'unauthorized');
   return session;
 }
@@ -217,6 +219,20 @@ async function api(request, response, url, db) {
     return json(response, 200, { ok: true, service: 'petalcards' });
   }
 
+  if (method === 'POST' && path === '/api/guest') {
+    const existing = authenticate(request, db, false);
+    if (existing) return json(response, 200, bootstrap(db, existing.user));
+    checkAuthRateLimit(request);
+    const token = createSessionToken();
+    // An unguessable cookie identifies this browser's private workspace.
+    // Guest records cannot be signed into using a password.
+    const user = db.createUser({ name: 'Petal', email: `${createSessionToken()}@guest.invalid`, passwordHash: '' });
+    db.seedStarterDeck(user.id);
+    db.createSession(hashSessionToken(token), user.id, Date.now() + GUEST_SECONDS * 1000);
+    const cookie = makeSessionCookie(token, request, GUEST_SECONDS).replace('petalcards_session=', 'petalcards_guest=');
+    return json(response, 201, bootstrap(db, user), { 'Set-Cookie': cookie });
+  }
+
   if (method === 'POST' && path === '/api/auth/register') {
     if (process.env.ALLOW_REGISTRATION === 'false') throw new AppError(403, 'New account registration is currently closed.', 'registration_closed');
     checkAuthRateLimit(request);
@@ -255,7 +271,14 @@ async function api(request, response, url, db) {
 
   if (method === 'GET' && path === '/api/bootstrap') {
     const { user } = authenticate(request, db);
-    return json(response, 200, bootstrap(db, user));
+    const headers = {};
+    if (user.guest) {
+      const token = parseCookies(request.headers.cookie).petalcards_guest;
+      db.db.prepare('UPDATE sessions SET expires_at = ? WHERE token_hash = ?')
+        .run(Date.now() + GUEST_SECONDS * 1000, hashSessionToken(token));
+      headers['Set-Cookie'] = makeSessionCookie(token, request, GUEST_SECONDS).replace('petalcards_session=', 'petalcards_guest=');
+    }
+    return json(response, 200, bootstrap(db, user), headers);
   }
 
   if (method === 'PATCH' && path === '/api/preferences') {
@@ -277,6 +300,7 @@ async function api(request, response, url, db) {
     const body = await readJson(request);
     const currentPassword = String(body.currentPassword ?? '');
     const newPassword = String(body.newPassword ?? '');
+    if (user.guest) throw new AppError(403, 'This workspace has no password or account.', 'guest_workspace');
     const record = db.getUserByEmail(user.email);
     if (!(await verifyPassword(currentPassword, record.password_hash))) throw new AppError(403, 'Current password is incorrect.', 'invalid_password');
     if (newPassword.length < 8 || newPassword.length > 128) throw new AppError(400, 'New password must be between 8 and 128 characters.', 'validation');
@@ -287,6 +311,7 @@ async function api(request, response, url, db) {
   if (method === 'DELETE' && path === '/api/account') {
     const { user } = authenticate(request, db);
     const body = await readJson(request);
+    if (user.guest) throw new AppError(403, 'This workspace has no password or account.', 'guest_workspace');
     const record = db.getUserByEmail(user.email);
     if (!(await verifyPassword(String(body.password ?? ''), record.password_hash))) throw new AppError(403, 'Password is incorrect.', 'invalid_password');
     db.deleteAccount(user.id);

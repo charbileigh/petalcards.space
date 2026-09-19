@@ -30,7 +30,7 @@
           <h1>Grow what<br>you <em>know.</em></h1>
           <p>Create beautiful flashcards, review at the right moment, and keep every little breakthrough in one calm place.</p>
           <div class="hero-points" aria-label="Features">
-            <span><b>✓</b> Private accounts</span>
+            <span><b>✓</b> No login needed</span>
             <span><b>✓</b> Spaced review</span>
             <span><b>✓</b> CSV &amp; JSON export</span>
           </div>
@@ -63,6 +63,7 @@
             <button id="register-tab" class="auth-tab" type="button" role="tab" aria-selected="false">Create account</button>
           </div>
 
+          <button class="button button-secondary" type="button" data-action="continue-guest">Continue without an account</button>
           <form id="login-form" class="auth-form">
             <label>
               <span>Email address</span>
@@ -127,9 +128,9 @@
               </div>
             </div>
           </details>
-          <button id="settings-button" class="avatar-button" type="button" data-action="settings" aria-label="Open account settings">
+          <button id="settings-button" class="avatar-button" type="button" data-action="settings" aria-label="Open workspace settings">
             <span id="user-avatar">P</span>
-            <span class="avatar-copy"><b id="user-name-short">Petal</b><small>My account</small></span>
+            <span class="avatar-copy"><b id="user-name-short">Petal</b><small>Settings</small></span>
             <span aria-hidden="true">⌄</span>
           </button>
         </nav>
@@ -240,7 +241,12 @@
 
     <dialog id="settings-dialog" class="modal">
       <div class="settings-content">
-        <header><div><span class="section-kicker">YOUR ACCOUNT</span><h2>Settings</h2></div><button class="modal-close" type="button" data-close="settings-dialog" aria-label="Close">×</button></header>
+        <header><div><span class="section-kicker">YOUR WORKSPACE</span><h2>Settings</h2></div><button class="modal-close" type="button" data-close="settings-dialog" aria-label="Close">×</button></header>
+        <div id="guest-settings" class="settings-block hidden">
+          <h3>No login needed</h3>
+          <p>Your cards are saved on the server and linked to this browser. Clearing cookies, using another browser, or leaving this workspace unused for a year means losing access. Download your decks as CSV or JSON to keep a copy.</p>
+          <button class="button button-ghost" type="button" data-action="existing-account">Sign in to an existing account</button>
+        </div>
         <form id="profile-form" class="settings-block">
           <h3>Profile</h3>
           <label class="field"><span>Name</span><input id="profile-name" name="name" required maxlength="60"></label>
@@ -253,7 +259,7 @@
           <label class="field"><span>New password</span><input name="newPassword" type="password" autocomplete="new-password" minlength="8" maxlength="128" required></label>
           <button class="button button-secondary" type="submit">Update password</button>
         </form>
-        <div class="settings-block settings-actions">
+        <div id="account-actions" class="settings-block settings-actions">
           <button class="button button-ghost" type="button" data-action="logout">Sign out</button>
           <button class="text-danger" type="button" data-action="delete-account">Delete account</button>
         </div>

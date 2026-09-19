@@ -239,7 +239,12 @@ function openCardDialog(card = null) {
 
 function openSettings() {
   byId('profile-name').value = state.user.name;
-  byId('profile-email').value = state.user.email;
+  const guest = state.user.guest;
+  byId('profile-email').value = state.user.email || '';
+  byId('profile-email').closest('label').classList.toggle('hidden', guest);
+  byId('password-form').classList.toggle('hidden', guest);
+  byId('account-actions').classList.toggle('hidden', guest);
+  byId('guest-settings').classList.toggle('hidden', !guest);
   byId('settings-dialog').showModal();
 }
 
@@ -394,7 +399,7 @@ async function exitStudy() {
 async function logout() {
   try { await request('/api/auth/logout', { method: 'POST', body: {} }); } catch {}
   byId('settings-dialog').close();
-  showLanding();
+  await init();
   toast('You are signed out.');
 }
 
@@ -483,6 +488,12 @@ document.addEventListener('click', async (event) => {
     await startStudy(deckId);
   } else if (action === 'settings') {
     openSettings();
+  } else if (action === 'existing-account') {
+    byId('settings-dialog').close();
+    showLanding();
+    switchAuthTab('login');
+  } else if (action === 'continue-guest') {
+    await init();
   } else if (action === 'logout') {
     await logout();
   } else if (action === 'delete-account') {
@@ -494,7 +505,7 @@ document.addEventListener('click', async (event) => {
       action: async (password) => {
         await request('/api/account', { method: 'DELETE', body: { password } });
         byId('settings-dialog').close();
-        showLanding();
+        await init();
         toast('Your account was deleted.');
       },
     });
@@ -668,10 +679,21 @@ for (const dialog of $$('dialog')) {
 async function init() {
   setTheme(localStorage.getItem('petalcards-theme') || 'pink', { save: false });
   try {
-    showApp(await request('/api/bootstrap'));
+    let payload;
+    try {
+      payload = await request('/api/bootstrap');
+    } catch (error) {
+      if (error.status !== 401) throw error;
+      payload = await request('/api/guest', { method: 'POST', body: {} });
+      // Check that cookies are enabled before allowing any edits.
+      await request('/api/bootstrap');
+    }
+    showApp(payload);
   } catch (error) {
-    if (error.status !== 401) toast('Could not reach the server. Please refresh.', 'error');
-    showLanding();
+    byId('boot-screen').classList.remove('hidden');
+    byId('landing-view').classList.add('hidden');
+    byId('app-shell').classList.add('hidden');
+    byId('boot-screen').innerHTML = '<p>Could not open your workspace. Check your connection and allow cookies, then try again.</p><button class="button button-primary" type="button" data-action="continue-guest">Try again</button>';
   }
 }
 
