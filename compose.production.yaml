@@ -2,8 +2,6 @@ services:
   petalcards:
     environment:
       APP_ORIGIN: https://${DOMAIN:-petalcards.space}
-      TRUST_PROXY: "1"
-      COOKIE_SECURE: "true"
 
   caddy:
     image: caddy:2-alpine

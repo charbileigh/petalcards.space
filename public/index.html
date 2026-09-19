@@ -8,97 +8,20 @@
     <title>Petalcards</title>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="/styles.css">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <script src="/pwa.js" type="module"></script>
     <script src="/app.js" type="module"></script>
   </head>
   <body>
     <div class="ambient ambient-one" aria-hidden="true"></div>
     <div class="ambient ambient-two" aria-hidden="true"></div>
 
+    <noscript><p>Petalcards needs JavaScript to save and study your cards. Please enable it in your browser.</p></noscript>
     <div id="boot-screen" class="boot-screen">
       <div class="brand-mark brand-mark-large" aria-hidden="true"><span></span></div>
       <p>Opening your cards…</p>
     </div>
-
-    <main id="landing-view" class="landing hidden">
-      <section class="landing-copy">
-        <a class="brand landing-brand" href="/" aria-label="Petalcards home">
-          <span class="brand-mark" aria-hidden="true"><span></span></span>
-          <span>petalcards</span>
-        </a>
-        <div class="hero-copy">
-          <span class="eyebrow"><span class="eyebrow-dot"></span> Learn softly. Remember deeply.</span>
-          <h1>Grow what<br>you <em>know.</em></h1>
-          <p>Create beautiful flashcards, review at the right moment, and keep every little breakthrough in one calm place.</p>
-          <div class="hero-points" aria-label="Features">
-            <span><b>✓</b> No login needed</span>
-            <span><b>✓</b> Spaced review</span>
-            <span><b>✓</b> CSV &amp; JSON export</span>
-          </div>
-        </div>
-        <div class="sample-stack" aria-hidden="true">
-          <div class="sample-card sample-back"></div>
-          <div class="sample-card sample-middle"></div>
-          <div class="sample-card sample-front">
-            <span class="sample-label">A little question</span>
-            <p>What will you remember today?</p>
-            <span class="sample-hint">tap to reveal · ✿</span>
-          </div>
-        </div>
-        <p class="landing-note">Your data lives on your own server.</p>
-      </section>
-
-      <section class="auth-side" aria-labelledby="auth-heading">
-        <div class="mobile-brand">
-          <span class="brand-mark" aria-hidden="true"><span></span></span>
-          <span>petalcards</span>
-        </div>
-        <div class="auth-card">
-          <div class="auth-heading">
-            <span class="mini-bloom" aria-hidden="true">✿</span>
-            <h2 id="auth-heading">Welcome back</h2>
-            <p id="auth-subtitle">Your next study session is waiting.</p>
-          </div>
-          <div class="auth-tabs" role="tablist" aria-label="Account action">
-            <button id="login-tab" class="auth-tab active" type="button" role="tab" aria-selected="true">Sign in</button>
-            <button id="register-tab" class="auth-tab" type="button" role="tab" aria-selected="false">Create account</button>
-          </div>
-
-          <button class="button button-secondary" type="button" data-action="continue-guest">Continue without an account</button>
-          <form id="login-form" class="auth-form">
-            <label>
-              <span>Email address</span>
-              <input name="email" type="email" autocomplete="email" placeholder="you@example.com" required maxlength="254">
-            </label>
-            <label>
-              <span>Password</span>
-              <input name="password" type="password" autocomplete="current-password" placeholder="Your password" required minlength="8" maxlength="128">
-            </label>
-            <button class="button button-primary button-wide" type="submit">
-              <span>Sign in</span><span aria-hidden="true">→</span>
-            </button>
-          </form>
-
-          <form id="register-form" class="auth-form hidden">
-            <label>
-              <span>Your name</span>
-              <input name="name" type="text" autocomplete="name" placeholder="How should we greet you?" required maxlength="60">
-            </label>
-            <label>
-              <span>Email address</span>
-              <input name="email" type="email" autocomplete="email" placeholder="you@example.com" required maxlength="254">
-            </label>
-            <label>
-              <span>Password</span>
-              <input name="password" type="password" autocomplete="new-password" placeholder="At least 8 characters" required minlength="8" maxlength="128">
-            </label>
-            <button class="button button-primary button-wide" type="submit">
-              <span>Create my space</span><span aria-hidden="true">→</span>
-            </button>
-          </form>
-          <p class="auth-footnote">No ads. No tracking. Just your cards.</p>
-        </div>
-      </section>
-    </main>
 
     <div id="app-shell" class="app-shell hidden">
       <header class="topbar">
@@ -111,7 +34,8 @@
           <input id="deck-search" type="search" placeholder="Search your decks…" aria-label="Search your decks">
           <kbd>/</kbd>
         </div>
-        <nav class="top-actions" aria-label="Account and appearance">
+        <nav class="top-actions" aria-label="Settings and appearance">
+          <button id="install-button" class="button button-secondary install-button" type="button" data-action="install-app">Install app</button>
           <details id="theme-menu" class="theme-menu">
             <summary class="icon-button" aria-label="Choose a theme" title="Choose a theme">
               <span class="theme-orb"></span>
@@ -136,6 +60,11 @@
         </nav>
       </header>
 
+      <div class="workspace-bar">
+        <span>Cards save automatically on this device</span>
+        <span id="offline-status" role="status">Preparing offline use…</span>
+        <button id="update-button" class="button button-ghost hidden" type="button">Update available</button>
+      </div>
       <main id="dashboard-view" class="view dashboard-view">
         <div class="content-wrap">
           <section class="welcome-row">
@@ -144,7 +73,7 @@
               <h1>Good <span id="time-greeting">morning</span>, <em id="greeting-name">friend</em>.</h1>
               <p>Pick up where you left off, or plant something new.</p>
             </div>
-            <button class="button button-primary" type="button" data-action="new-deck"><span aria-hidden="true">＋</span> New deck</button>
+            <button class="button button-primary" type="button" data-action="new-deck"><span aria-hidden="true">+</span> New deck</button>
           </section>
 
           <section class="stat-grid" aria-label="Study summary">
@@ -157,7 +86,7 @@
           <section class="decks-section">
             <div class="section-heading">
               <div><span class="section-kicker">YOUR COLLECTIONS</span><h2>All decks</h2></div>
-              <span id="deck-count-label" class="soft-pill">0 decks</span>
+              <div class="library-tools"><button class="button button-ghost" type="button" data-action="import">Import</button><button class="button button-ghost" type="button" data-action="backup">Download backup</button><span id="deck-count-label" class="soft-pill">0 decks</span></div>
             </div>
             <div id="deck-grid" class="deck-grid"></div>
             <div id="empty-decks" class="empty-state hidden">
@@ -182,7 +111,7 @@
           <section class="cards-section">
             <div class="section-heading">
               <div><span class="section-kicker">CARD LIBRARY</span><h2>Cards</h2></div>
-              <button class="button button-secondary" type="button" data-action="new-card"><span aria-hidden="true">＋</span> Add card</button>
+              <button class="button button-secondary" type="button" data-action="new-card"><span aria-hidden="true">+</span> Add card</button>
             </div>
             <div id="card-list" class="card-list"></div>
             <div id="empty-cards" class="empty-state hidden">
@@ -242,26 +171,25 @@
     <dialog id="settings-dialog" class="modal">
       <div class="settings-content">
         <header><div><span class="section-kicker">YOUR WORKSPACE</span><h2>Settings</h2></div><button class="modal-close" type="button" data-close="settings-dialog" aria-label="Close">×</button></header>
-        <div id="guest-settings" class="settings-block hidden">
-          <h3>No login needed</h3>
-          <p>Your cards are saved on the server and linked to this browser. Clearing cookies, using another browser, or leaving this workspace unused for a year means losing access. Download your decks as CSV or JSON to keep a copy.</p>
-          <button class="button button-ghost" type="button" data-action="existing-account">Sign in to an existing account</button>
-        </div>
         <form id="profile-form" class="settings-block">
-          <h3>Profile</h3>
-          <label class="field"><span>Name</span><input id="profile-name" name="name" required maxlength="60"></label>
-          <label class="field"><span>Email</span><input id="profile-email" disabled></label>
-          <button class="button button-secondary" type="submit">Save profile</button>
+          <h3>Make it yours</h3>
+          <label class="field"><span>What should we call you? (optional)</span><input id="profile-name" name="name" maxlength="60" placeholder="friend"></label>
+          <button class="button button-secondary" type="submit">Save name</button>
         </form>
-        <form id="password-form" class="settings-block">
-          <h3>Change password</h3>
-          <label class="field"><span>Current password</span><input name="currentPassword" type="password" autocomplete="current-password" required></label>
-          <label class="field"><span>New password</span><input name="newPassword" type="password" autocomplete="new-password" minlength="8" maxlength="128" required></label>
-          <button class="button button-secondary" type="submit">Update password</button>
-        </form>
-        <div id="account-actions" class="settings-block settings-actions">
-          <button class="button button-ghost" type="button" data-action="logout">Sign out</button>
-          <button class="text-danger" type="button" data-action="delete-account">Delete account</button>
+        <div class="settings-block">
+          <h3>Your cards, on this device</h3>
+          <p>Cards and study progress save automatically, online or offline. Clearing site data or using a different browser or domain gives you a separate collection.</p>
+          <p>Download a backup to keep a copy or move your cards. Import adds decks without replacing your current collection.</p>
+          <div class="library-tools">
+            <button class="button button-secondary" type="button" data-action="backup">Download backup</button>
+            <button class="button button-ghost" type="button" data-action="import">Import JSON</button>
+            <button class="button button-ghost" type="button" data-action="keep-storage">Keep storage on device</button>
+          </div>
+        </div>
+        <div class="settings-block">
+          <h3>Petalcards on your desktop</h3>
+          <p>Install the app to open it from your desktop. Wait for “Ready for offline use” before disconnecting.</p>
+          <button class="button button-secondary" type="button" data-action="install-app">Install app</button>
         </div>
       </div>
     </dialog>
@@ -271,11 +199,19 @@
         <div class="confirm-icon" aria-hidden="true">!</div>
         <h2 id="confirm-title">Are you sure?</h2>
         <p id="confirm-message">This action cannot be undone.</p>
-        <label id="confirm-password-wrap" class="field hidden"><span>Your password</span><input id="confirm-password" type="password" autocomplete="current-password"></label>
         <footer><button class="button button-ghost" type="button" data-close="confirm-dialog">Cancel</button><button id="confirm-button" class="button button-danger" type="submit">Delete</button></footer>
       </form>
     </dialog>
 
+    <input id="import-file" class="hidden" type="file" accept=".json,application/json" aria-label="Import Petalcards backup">
+    <dialog id="install-dialog" class="modal">
+      <div class="settings-content">
+        <header><div><span class="section-kicker">ON YOUR DEVICE</span><h2>Install Petalcards</h2></div><button class="modal-close" type="button" data-close="install-dialog" aria-label="Close">×</button></header>
+        <p>On a PC, open this site in Chrome or Edge and choose the install icon in the address bar, or the browser menu’s install option.</p>
+        <p>On a recent Mac, Safari also offers File → Add to Dock. On a phone, look for Install app or Add to Home Screen.</p>
+        <p>You can keep using Petalcards here while the install option becomes available. Open it online once and wait for “Ready for offline use” before going offline.</p>
+      </div>
+    </dialog>
     <div id="toast-region" class="toast-region" aria-live="polite" aria-atomic="true"></div>
   </body>
 </html>

@@ -6,9 +6,6 @@ services:
       NODE_ENV: production
       DATA_DIR: /data
       APP_ORIGIN: ${APP_ORIGIN:-}
-      TRUST_PROXY: ${TRUST_PROXY:-0}
-      COOKIE_SECURE: ${COOKIE_SECURE:-false}
-      ALLOW_REGISTRATION: ${ALLOW_REGISTRATION:-true}
     ports:
       - "${PETALCARDS_BIND:-127.0.0.1}:${PETALCARDS_PORT:-3000}:3000"
     volumes:

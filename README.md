@@ -1,147 +1,93 @@
 # Petalcards
 
-A complete, self-hosted flashcard app. Petalcards opens without a login, with a private workspace per browser, private decks, spaced review, downloadable CSV/JSON files, a pink light theme, and five dark themes.
+Make, save and study flashcards without an account. Petalcards 2 opens directly into your collection and stores decks, cards, themes and study progress in IndexedDB on your device. It works offline after its first successful online visit and can be installed as a desktop or mobile web app.
 
-It is a dynamic server application—not a static site and not a PWA. The app, API, authentication, and database all run on infrastructure you control.
+## What works offline
 
-## What is included
+- Create, edit, search and delete decks and cards.
+- Study with hints, flip cards, keyboard shortcuts and spaced review ratings.
+- Keep review progress and any of the six themes after closing and reopening.
+- Download individual decks as CSV or JSON.
+- Download a complete JSON backup and import it on another device or domain.
 
-- Automatic guest workspaces; optional legacy account registration, sign in, sign out, profile editing, password changes, and account deletion
-- A separate private library for every browser workspace or account
-- Deck and card creation, editing, deletion, and search
-- A tested flashcard flow: open a deck, flip a card, rate it, and advance
-- Lightweight spaced-review scheduling and progress statistics
-- CSV and JSON downloads for every deck
-- Pink light mode plus purple, blue, green, berry, and grey dark modes
-- SQLite persistence with no external database account or API keys
-- Docker Compose for local use and Caddy for automatic production HTTPS
-- No analytics, ads, service worker, web manifest, or third-party sign-in
+There are no email, password, registration, sign-in or account-management screens or endpoints. New cards do not depend on Render uptime, cookies or a server database. The Node server serves the app files and can read an existing version 1 database to recover an already-authorized library.
 
-## Fastest local start
+## Preview
 
-You need Docker with the Compose plugin.
+Download [the interactive preview](docs/Petalcards_Preview.html) and open it in a browser to try creating, studying and downloading cards. It uses a separate preview collection. Installation belongs to the deployed HTTPS app. Regenerate it with `npm run preview:build` after UI changes.
 
-```bash
-git clone https://github.com/charbileigh/petalcards.space.git
-cd petalcards.space
-cp .env.example .env
-docker compose up -d --build
-```
+[Desktop screenshot](docs/preview.png) · [Phone screenshot](docs/preview-mobile.png)
 
-Open <http://localhost:3000>, and open the included **Welcome to Petalcards** deck. It contains three working cards so you can test the study flow immediately.
+## Run locally
 
-To stop the app:
+Requires Node.js 24 or newer.
 
-```bash
-docker compose down
-```
-
-Your database remains in the `petalcards_data` Docker volume.
-
-## Run without Docker
-
-Petalcards has no npm dependencies. Install Node.js 24 or newer, then run:
-
-```bash
+```sh
+npm ci
 npm start
 ```
 
-The app starts on <http://localhost:3000>. Its database is saved at `data/petalcards.sqlite`.
+Open `http://localhost:3000`. Use `PORT=3100 npm start` if port 3000 is busy. The starter deck opens immediately.
 
-Useful development commands:
+## Update the existing Render app
 
-```bash
-npm run dev
+1. Merge the `feat/offline-no-accounts` branch into the branch your Render service deploys, or select this branch in the service settings for testing.
+2. Keep the existing Node web service. The build command can be `npm ci --omit=dev`; the start command is `npm start`.
+3. Deploy the latest commit in Render. Merging on GitHub alone only updates the service if its auto-deploy is enabled.
+4. Open the HTTPS service URL or your custom domain, then refresh. `/api/health` should show `"version":"2.0.0"` and `"storage":"device"`.
+5. Wait for **Ready for offline use**. Disconnect and reopen the app to confirm it loads from its cached files.
+
+**Seeing the old login page means the old build or assets are still being served.** Verify the deployed branch and commit, then hard-refresh once. This version has no login form. HTML, scripts and the service worker use revalidation headers to avoid mixing old and new assets.
+
+All files under `public/` can also run on a static HTTPS host at its domain root. Static hosting does not provide the optional legacy recovery endpoint. Keep the Node service while recovering older server-saved cards.
+
+## Install on a PC
+
+Visit the app online in Chrome or Edge, then use **Install app** or the browser's address-bar install icon. Installation opens Petalcards in its own window with an app icon. This is a PWA; it does not require a separate executable installer. On supported Safari versions, use **File → Add to Dock**.
+
+Installation requires HTTPS (or localhost for development) and a supported browser. If a browser cannot show an in-page installation prompt, the button opens instructions. Wait for **Ready for offline use** before disconnecting. An initial visit without internet cannot download the app. A failed cache download is reported in the status bar rather than claiming offline readiness.
+
+When an updated app is cached, an **Update available** button appears. Save any open edits before applying it. Installing an update does not clear IndexedDB.
+
+## Saving and backups
+
+Cards are saved automatically after each successful edit. A save is confirmed only after the IndexedDB transaction commits. Storage failures keep the editor open and display an error; there is no temporary in-memory fallback that pretends to save.
+
+Device storage belongs to the browser profile and domain. It is not cloud sync. The Render URL, `petalcards.space`, `www.petalcards.space`, different browsers and different devices each have separate storage. To move cards, use **Download backup**, open the destination, and choose **Import**. Imports add copies of decks and preserve their review progress without replacing existing work. They accept current backups and older Petalcards JSON deck exports; CSV is for export only.
+
+Clearing site data, removing a browser profile, private browsing or browser storage eviction can remove device data. Settings includes **Keep storage on device** to request persistence; the browser decides whether to grant it. Keep downloaded backups of important cards even if persistence is granted.
+
+## Recovering cards from version 1
+
+Keep the old SQLite file at `PETALCARDS_DB_PATH` (or `DATA_DIR/petalcards.sqlite`, default `./data/petalcards.sqlite`). No migration modifies or deletes that database.
+
+On an online visit, the app tries a read-only recovery endpoint. A still-valid session or guest cookie authorizes copying only that session's old decks into device storage, including review progress. Each library is copied once, atomically; later visits do not duplicate it. This background step never blocks opening or editing local cards.
+
+If the old cookie expired, the domain changed, or the server's SQLite file was lost, automatic recovery is unavailable. Previously downloaded JSON exports can be imported. Keep any server database backups: they are not made public and are not erased by this update. This app does not add a bypass for accessing old private libraries without their existing session.
+
+## Checks
+
+```sh
 npm run check
 npm test
+npx playwright install chromium
+npm run test:browser
 ```
 
-## Put it on `petalcards.space`
+The browser check exercises real IndexedDB and service-worker caching: first-run access, offline reload, offline editing and study, restart persistence, backup/import, independent browsers, multi-tab writes, storage failure handling, installation metadata and phone layout. It writes a screenshot preview when `PETALCARDS_PREVIEW_PATH` is set.
 
-The included production Compose file adds Caddy as a reverse proxy and automatically obtains/renews an HTTPS certificate.
+GitHub Actions runs the server checks and browser flow before building the Docker image. Runtime hosting has no third-party package dependencies. Playwright is a development-only dependency.
 
-1. Use a Linux server with a public IPv4 address and Docker installed.
-2. Point the domain's `A` record to that server. Remove the old hosting record first. Add an `AAAA` record only if the server has working public IPv6.
-3. Allow inbound TCP ports `80` and `443` (and optionally UDP `443`) in the server firewall.
-4. Copy the repository to the server and create the environment file:
+## Docker
 
-   ```bash
-   cp .env.example .env
-   ```
-
-5. Confirm these production values in `.env`:
-
-   ```dotenv
-   DOMAIN=petalcards.space
-   APP_ORIGIN=https://petalcards.space
-   TRUST_PROXY=1
-   COOKIE_SECURE=true
-   ALLOW_REGISTRATION=true
-   ```
-
-6. Start the production stack:
-
-   ```bash
-   docker compose -f compose.yaml -f compose.production.yaml up -d --build
-   ```
-
-7. Visit `https://petalcards.space` to start without signing in. To disable optional account registration, change `ALLOW_REGISTRATION=false` afterward and run the same production command again.
-
-Check status and logs with:
-
-```bash
-docker compose -f compose.yaml -f compose.production.yaml ps
-docker compose -f compose.yaml -f compose.production.yaml logs -f petalcards
+```sh
+docker compose up --build -d
 ```
 
-## Data and backups
+For the included Caddy HTTPS setup, set `DOMAIN` in `.env`, point the domain at the server and run:
 
-All user, deck, card, session, theme, and review data is in `/data/petalcards.sqlite` inside the persistent Docker volume. SQLite also uses `-wal` and `-shm` files while the app is running, so stop the app before copying the data directory.
-
-```bash
-docker compose -f compose.yaml -f compose.production.yaml stop petalcards
-docker compose -f compose.yaml -f compose.production.yaml cp petalcards:/data ./petalcards-data-backup
-docker compose -f compose.yaml -f compose.production.yaml start petalcards
+```sh
+docker compose -f compose.yaml -f compose.production.yaml up --build -d
 ```
 
-Keep the backup directory somewhere separate from the server. To restore, stop the service and copy the backed-up files into `/data` before restarting it.
-
-## Updating
-
-```bash
-git pull
-docker compose -f compose.yaml -f compose.production.yaml up -d --build
-```
-
-Database migrations run automatically and preserve existing data.
-
-## Security notes
-
-- Passwords are salted and hashed with scrypt; plaintext passwords are never stored.
-- Session tokens are random, stored only as hashes, sent in HttpOnly/SameSite cookies, and expire after 30 days.
-- Mutating requests are protected with same-origin checks and authentication endpoints are rate-limited.
-- Each database query checks deck/card ownership. Automated tests verify account isolation.
-- Keep HTTPS enabled in production and back up the SQLite volume regularly.
-
-## Project layout
-
-```text
-public/                 Browser UI and themes
-src/server.mjs          HTTP server and JSON API
-src/database.mjs        SQLite schema and data access
-src/security.mjs        Password, session, cookie, and export helpers
-test/app.test.mjs       End-to-end API and study-flow tests
-compose.yaml            App container and persistent volume
-compose.production.yaml HTTPS reverse proxy
-Caddyfile               Domain and TLS configuration
-```
-
-## License
-
-MIT
-
-## Using Petalcards without a login
-
-The app automatically opens a private guest workspace. Decks, cards, review progress and themes remain in SQLite; an HttpOnly browser cookie provides access. Guest cookies last one year and renew when the workspace opens. Keep cookies enabled. Clearing them, using another browser/device, or returning after expiry creates a new workspace; there is no guest password recovery. Download CSV/JSON copies of important decks.
-
-Existing accounts and their decks are preserved. Use Settings → Sign in to an existing account to access them. Signing out returns to this browser's guest workspace. Account and guest decks stay separate. `ALLOW_REGISTRATION=false` does not disable guest workspaces.
+The existing `/data` volume is retained only for optional legacy recovery. New device-saved cards are backed up using the app's download controls.

@@ -1,6 +1,8 @@
+import * as library from './storage.js';
+import { downloadFile, deckCSV, safeFilename } from './downloads.js';
 const THEMES = ['pink', 'purple', 'blue', 'green', 'berry', 'grey'];
 const state = {
-  user: null,
+  profile: null,
   theme: 'pink',
   decks: [],
   stats: { decks: 0, cards: 0, due: 0, mastery: 0 },
@@ -21,25 +23,6 @@ function escapeHtml(value) {
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#039;');
-}
-
-async function request(path, options = {}) {
-  const init = { method: options.method || 'GET', headers: { Accept: 'application/json' } };
-  if (options.body !== undefined) {
-    init.headers['Content-Type'] = 'application/json';
-    init.body = JSON.stringify(options.body);
-  }
-  const response = await fetch(path, init);
-  if (response.status === 204) return null;
-  const contentType = response.headers.get('content-type') || '';
-  const payload = contentType.includes('application/json') ? await response.json() : null;
-  if (!response.ok) {
-    const error = new Error(payload?.error || `Request failed (${response.status})`);
-    error.status = response.status;
-    error.code = payload?.code;
-    throw error;
-  }
-  return payload;
 }
 
 function toast(message, kind = 'success') {
@@ -63,12 +46,14 @@ function initials(name) {
 
 function setTheme(theme, { save = true } = {}) {
   const selected = THEMES.includes(theme) ? theme : 'pink';
+  if (save) {
+    library.setTheme(selected).then(() => setTheme(selected, { save: false })).catch((error) => toast(error.message, 'error'));
+    return;
+  }
   state.theme = selected;
   document.documentElement.dataset.theme = selected;
-  localStorage.setItem('petalcards-theme', selected);
   document.querySelector('meta[name="theme-color"]')?.setAttribute('content', selected === 'pink' ? '#fffafd' : '#16121f');
   $$('[data-theme-choice]').forEach((button) => button.classList.toggle('active', button.dataset.themeChoice === selected));
-  if (save && state.user) request('/api/preferences', { method: 'PATCH', body: { theme: selected } }).catch(() => {});
 }
 
 function timeGreeting() {
@@ -84,33 +69,23 @@ function showView(id) {
 }
 
 function updateHeader() {
-  if (!state.user) return;
-  byId('user-avatar').textContent = initials(state.user.name);
-  byId('user-name-short').textContent = state.user.name.split(/\s+/)[0];
-  byId('greeting-name').textContent = state.user.name.split(/\s+/)[0];
+  if (!state.profile) return;
+  byId('user-avatar').textContent = initials(state.profile.name);
+  byId('user-name-short').textContent = state.profile.name.split(/\s+/)[0];
+  byId('greeting-name').textContent = state.profile.name.split(/\s+/)[0];
   byId('time-greeting').textContent = timeGreeting();
 }
 
 function showApp(payload) {
-  state.user = payload.user;
+  state.profile = payload.profile;
   state.decks = payload.decks || [];
   state.stats = payload.stats || { decks: 0, cards: 0, due: 0, mastery: 0 };
   byId('boot-screen').classList.add('hidden');
-  byId('landing-view').classList.add('hidden');
   byId('app-shell').classList.remove('hidden');
-  setTheme(payload.theme || localStorage.getItem('petalcards-theme') || 'pink', { save: false });
+  setTheme(payload.theme || 'pink', { save: false });
   updateHeader();
   renderDashboard();
   showView('dashboard-view');
-}
-
-function showLanding() {
-  state.user = null;
-  state.decks = [];
-  state.currentDeck = null;
-  byId('boot-screen').classList.add('hidden');
-  byId('app-shell').classList.add('hidden');
-  byId('landing-view').classList.remove('hidden');
 }
 
 function plural(count, singular, pluralText = `${singular}s`) {
@@ -146,7 +121,7 @@ function renderDashboard() {
 }
 
 async function refreshDecks() {
-  const payload = await request('/api/decks');
+  const payload = await library.dashboard();
   state.decks = payload.decks;
   state.stats = payload.stats;
   renderDashboard();
@@ -179,8 +154,8 @@ function renderDeck() {
         <summary class="icon-button" aria-label="Deck options">•••</summary>
         <div class="more-popover">
           <button type="button" data-action="edit-deck">Edit deck</button>
-          <a href="/api/decks/${encodeURIComponent(deck.id)}/export?format=csv" download>Download CSV</a>
-          <a href="/api/decks/${encodeURIComponent(deck.id)}/export?format=json" download>Download JSON</a>
+          <button type="button" data-action="export-deck" data-format="csv">Download CSV</button>
+          <button type="button" data-action="export-deck" data-format="json">Download JSON</button>
           <button class="danger" type="button" data-action="delete-deck">Delete deck</button>
         </div>
       </details>
@@ -203,7 +178,7 @@ function renderDeck() {
 
 async function openDeck(deckId) {
   try {
-    const payload = await request(`/api/decks/${encodeURIComponent(deckId)}`);
+    const payload = await library.getDeck(deckId);
     state.currentDeck = payload.deck;
     renderDeck();
     showView('deck-view');
@@ -238,26 +213,16 @@ function openCardDialog(card = null) {
 }
 
 function openSettings() {
-  byId('profile-name').value = state.user.name;
-  const guest = state.user.guest;
-  byId('profile-email').value = state.user.email || '';
-  byId('profile-email').closest('label').classList.toggle('hidden', guest);
-  byId('password-form').classList.toggle('hidden', guest);
-  byId('account-actions').classList.toggle('hidden', guest);
-  byId('guest-settings').classList.toggle('hidden', !guest);
+  byId('profile-name').value = state.profile.name === 'friend' ? '' : state.profile.name;
   byId('settings-dialog').showModal();
 }
 
-function openConfirm({ title, message, confirmText = 'Delete', password = false, action }) {
+function openConfirm({ title, message, confirmText = 'Delete', action }) {
   byId('confirm-title').textContent = title;
   byId('confirm-message').textContent = message;
   byId('confirm-button').textContent = confirmText;
-  byId('confirm-password-wrap').classList.toggle('hidden', !password);
-  byId('confirm-password').required = password;
-  byId('confirm-password').value = '';
   state.confirmAction = action;
   byId('confirm-dialog').showModal();
-  if (password) byId('confirm-password').focus();
 }
 
 function dueCards(cards) {
@@ -268,7 +233,7 @@ function dueCards(cards) {
 async function startStudy(deckId) {
   try {
     if (!state.currentDeck || state.currentDeck.id !== deckId) {
-      const payload = await request(`/api/decks/${encodeURIComponent(deckId)}`);
+      const payload = await library.getDeck(deckId);
       state.currentDeck = payload.deck;
     }
     if (!state.currentDeck.cards.length) {
@@ -295,10 +260,10 @@ async function startStudy(deckId) {
 }
 
 function ratingIntervals(card) {
-  const current = Number(card.intervalDays || 0);
-  const good = current < 1 ? 1 : Math.max(1, Math.round(current * 2.5));
-  const easy = current < 1 ? 4 : Math.max(4, Math.round(current * 3.25));
-  return { again: '10m', hard: current < 1 ? '1d' : `${Math.max(1, Math.round(current * 1.2))}d`, good: `${good}d`, easy: `${easy}d` };
+  return Object.fromEntries(['again', 'hard', 'good', 'easy'].map((rating) => {
+    const days = library.nextReview(card, rating).intervalDays;
+    return [rating, days < 1 ? `${Math.round(days * 1440)}m` : `${Math.round(days)}d`];
+  }));
 }
 
 function renderStudyCard() {
@@ -357,18 +322,21 @@ function toggleHint() {
 
 async function rateCard(rating) {
   const session = state.study;
-  if (!session || !session.flipped) return;
+  if (!session || !session.flipped || session.saving) return;
+  session.saving = true;
   const card = session.cards[session.index];
   $$('.rating-button').forEach((button) => { button.disabled = true; });
   try {
-    const payload = await request(`/api/cards/${encodeURIComponent(card.id)}/review`, { method: 'POST', body: { rating } });
+    const payload = await library.reviewCard(session.deckId, card.id, rating);
+    if (state.study !== session || !state.currentDeck) return;
     const position = state.currentDeck.cards.findIndex((item) => item.id === card.id);
     if (position >= 0) state.currentDeck.cards[position] = payload.card;
     session.reviewed += 1;
     session.index += 1;
-    window.setTimeout(renderStudyCard, 170);
+    window.setTimeout(() => { if (state.study === session) { session.saving = false; renderStudyCard(); } }, 170);
   } catch (error) {
     toast(error.message, 'error');
+    session.saving = false;
     $$('.rating-button').forEach((button) => { button.disabled = false; });
   }
 }
@@ -394,25 +362,6 @@ async function exitStudy() {
   state.study = null;
   if (deckId) await openDeck(deckId);
   else showView('dashboard-view');
-}
-
-async function logout() {
-  try { await request('/api/auth/logout', { method: 'POST', body: {} }); } catch {}
-  byId('settings-dialog').close();
-  await init();
-  toast('You are signed out.');
-}
-
-function switchAuthTab(tab) {
-  const login = tab === 'login';
-  byId('login-tab').classList.toggle('active', login);
-  byId('register-tab').classList.toggle('active', !login);
-  byId('login-tab').setAttribute('aria-selected', String(login));
-  byId('register-tab').setAttribute('aria-selected', String(!login));
-  byId('login-form').classList.toggle('hidden', !login);
-  byId('register-form').classList.toggle('hidden', login);
-  byId('auth-heading').textContent = login ? 'Welcome back' : 'Make a little space';
-  byId('auth-subtitle').textContent = login ? 'Your next study session is waiting.' : 'Your first deck is only a minute away.';
 }
 
 document.addEventListener('click', async (event) => {
@@ -449,7 +398,7 @@ document.addEventListener('click', async (event) => {
       title: 'Delete this deck?',
       message: `“${deck.title}” and all ${plural(deck.cardCount, 'card')} will be permanently deleted.`,
       action: async () => {
-        await request(`/api/decks/${encodeURIComponent(deck.id)}`, { method: 'DELETE', body: {} });
+        await library.deleteDeck(deck.id);
         state.currentDeck = null;
         await refreshDecks();
         showView('dashboard-view');
@@ -466,7 +415,7 @@ document.addEventListener('click', async (event) => {
       title: 'Delete this card?',
       message: `“${card.front.slice(0, 80)}${card.front.length > 80 ? '…' : ''}” will be permanently deleted.`,
       action: async () => {
-        await request(`/api/cards/${encodeURIComponent(card.id)}`, { method: 'DELETE', body: {} });
+        await library.deleteCard(state.currentDeck.id, card.id);
         await openDeck(state.currentDeck.id);
         await refreshDecks();
         toast('Card deleted.');
@@ -488,38 +437,34 @@ document.addEventListener('click', async (event) => {
     await startStudy(deckId);
   } else if (action === 'settings') {
     openSettings();
-  } else if (action === 'existing-account') {
-    byId('settings-dialog').close();
-    showLanding();
-    switchAuthTab('login');
-  } else if (action === 'continue-guest') {
+  } else if (action === 'retry-storage') {
     await init();
-  } else if (action === 'logout') {
-    await logout();
-  } else if (action === 'delete-account') {
-    openConfirm({
-      title: 'Delete your account?',
-      message: 'Every deck, card, and review will be permanently deleted. Enter your password to confirm.',
-      confirmText: 'Delete my account',
-      password: true,
-      action: async (password) => {
-        await request('/api/account', { method: 'DELETE', body: { password } });
-        byId('settings-dialog').close();
-        await init();
-        toast('Your account was deleted.');
-      },
-    });
+  } else if (action === 'export-deck') {
+    try {
+      const { deck } = await library.getDeck(state.currentDeck.id);
+      const csv = target.dataset.format === 'csv';
+      downloadFile(csv ? deckCSV(deck) : JSON.stringify({ version: 1, deck }, null, 2), `${safeFilename(deck.title)}.${csv ? 'csv' : 'json'}`, csv ? 'text/csv;charset=utf-8' : 'application/json');
+    } catch (error) { toast(error.message, 'error'); }
+  } else if (action === 'backup') {
+    try {
+      downloadFile(JSON.stringify(await library.backup(), null, 2), `petalcards-backup-${new Date().toISOString().slice(0, 10)}.json`, 'application/json');
+    } catch (error) { toast(error.message, 'error'); }
+  } else if (action === 'import') {
+    byId('import-file').click();
+  } else if (action === 'keep-storage') {
+    const kept = await navigator.storage?.persist?.().catch(() => false);
+    toast(kept ? 'Persistent storage enabled. Keep downloading backups too.' : 'Cards still save automatically. Download backups to keep another copy.');
   }
 });
 
 document.addEventListener('keydown', (event) => {
   const typing = ['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName);
-  if (event.key === '/' && !typing && state.user && !state.study) {
+  if (event.key === '/' && !typing && state.profile && !state.study) {
     event.preventDefault();
     byId('deck-search').focus();
   }
   if (event.key === 'Escape' && state.study && !document.querySelector('dialog[open]')) exitStudy();
-  if (!state.study || typing) return;
+  if (!state.study || typing || document.querySelector('dialog[open]')) return;
   if (event.code === 'Space') {
     event.preventDefault();
     flipCard();
@@ -537,41 +482,6 @@ byId('deck-grid').addEventListener('keydown', (event) => {
   }
 });
 
-byId('login-tab').addEventListener('click', () => switchAuthTab('login'));
-byId('register-tab').addEventListener('click', () => switchAuthTab('register'));
-
-byId('login-form').addEventListener('submit', async (event) => {
-  event.preventDefault();
-  const form = event.currentTarget;
-  const values = Object.fromEntries(new FormData(form));
-  setBusy(form, true);
-  try {
-    showApp(await request('/api/auth/login', { method: 'POST', body: values }));
-    form.reset();
-    toast('Welcome back.');
-  } catch (error) {
-    toast(error.message, 'error');
-  } finally {
-    setBusy(form, false);
-  }
-});
-
-byId('register-form').addEventListener('submit', async (event) => {
-  event.preventDefault();
-  const form = event.currentTarget;
-  const values = Object.fromEntries(new FormData(form));
-  setBusy(form, true);
-  try {
-    showApp(await request('/api/auth/register', { method: 'POST', body: values }));
-    form.reset();
-    toast('Your learning garden is ready.');
-  } catch (error) {
-    toast(error.message, 'error');
-  } finally {
-    setBusy(form, false);
-  }
-});
-
 byId('deck-form').addEventListener('submit', async (event) => {
   event.preventDefault();
   const form = event.currentTarget;
@@ -581,8 +491,8 @@ byId('deck-form').addEventListener('submit', async (event) => {
   setBusy(form, true);
   try {
     const payload = id
-      ? await request(`/api/decks/${encodeURIComponent(id)}`, { method: 'PATCH', body: values })
-      : await request('/api/decks', { method: 'POST', body: values });
+      ? await library.updateDeck(id, values)
+      : await library.createDeck(values);
     byId('deck-dialog').close();
     await refreshDecks();
     await openDeck(payload.deck.id);
@@ -602,8 +512,8 @@ byId('card-form').addEventListener('submit', async (event) => {
   delete values.id;
   setBusy(form, true);
   try {
-    if (id) await request(`/api/cards/${encodeURIComponent(id)}`, { method: 'PATCH', body: values });
-    else await request(`/api/decks/${encodeURIComponent(state.currentDeck.id)}/cards`, { method: 'POST', body: values });
+    if (id) await library.updateCard(state.currentDeck.id, id, values);
+    else await library.createCard(state.currentDeck.id, values);
     byId('card-dialog').close();
     await openDeck(state.currentDeck.id);
     await refreshDecks();
@@ -620,26 +530,10 @@ byId('profile-form').addEventListener('submit', async (event) => {
   const form = event.currentTarget;
   setBusy(form, true);
   try {
-    const payload = await request('/api/account', { method: 'PATCH', body: { name: byId('profile-name').value } });
-    state.user = payload.user;
+    const payload = await library.setProfile(byId('profile-name').value);
+    state.profile = payload.profile;
     updateHeader();
-    toast('Profile saved.');
-  } catch (error) {
-    toast(error.message, 'error');
-  } finally {
-    setBusy(form, false);
-  }
-});
-
-byId('password-form').addEventListener('submit', async (event) => {
-  event.preventDefault();
-  const form = event.currentTarget;
-  const values = Object.fromEntries(new FormData(form));
-  setBusy(form, true);
-  try {
-    await request('/api/account/password', { method: 'POST', body: values });
-    form.reset();
-    toast('Password updated.');
+    toast('Name saved.');
   } catch (error) {
     toast(error.message, 'error');
   } finally {
@@ -653,13 +547,13 @@ $('#confirm-dialog form').addEventListener('submit', async (event) => {
   const button = byId('confirm-button');
   button.disabled = true;
   try {
-    await state.confirmAction?.(byId('confirm-password').value);
+    await state.confirmAction?.();
     byId('confirm-dialog').close();
+    state.confirmAction = null;
   } catch (error) {
     toast(error.message, 'error');
   } finally {
     button.disabled = false;
-    state.confirmAction = null;
   }
 });
 
@@ -676,25 +570,54 @@ for (const dialog of $$('dialog')) {
   });
 }
 
-async function init() {
-  setTheme(localStorage.getItem('petalcards-theme') || 'pink', { save: false });
+byId('import-file').addEventListener('change', async (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
   try {
-    let payload;
-    try {
-      payload = await request('/api/bootstrap');
-    } catch (error) {
-      if (error.status !== 401) throw error;
-      payload = await request('/api/guest', { method: 'POST', body: {} });
-      // Check that cookies are enabled before allowing any edits.
-      await request('/api/bootstrap');
-    }
-    showApp(payload);
+    if (file.size > 50 * 1024 * 1024) throw new Error('Choose a JSON file smaller than 50 MB.');
+    const payload = JSON.parse(await file.text());
+    const count = await library.importLibrary(payload);
+    await refreshDecks();
+    toast(`Imported ${plural(count, 'deck')}. Your existing decks are unchanged.`);
   } catch (error) {
-    byId('boot-screen').classList.remove('hidden');
-    byId('landing-view').classList.add('hidden');
+    toast(error instanceof SyntaxError ? 'This file is not valid JSON. Choose a Petalcards backup or deck export.' : error.message, 'error');
+  } finally { event.target.value = ''; }
+});
+
+let copyingPreviousCards = false;
+async function copyPreviousCards() {
+  if (copyingPreviousCards || !navigator.onLine) return;
+  copyingPreviousCards = true;
+  try {
+    const response = await fetch('/api/legacy-library', { cache: 'no-store', signal: AbortSignal.timeout(10000) });
+    if (!response.ok || !response.headers.get('content-type')?.includes('application/json')) return;
+    const payload = await response.json();
+    let count = 0;
+    for (const source of payload.libraries || []) {
+      count += await library.importLibrary(source, { sourceId: source.sourceId });
+    }
+    if (count) { await refreshDecks(); toast(`Saved ${plural(count, 'existing deck')} to this device.`); }
+  } catch { /* An unavailable legacy server must never block local cards. Retry when online. */ }
+  finally { copyingPreviousCards = false; }
+}
+
+async function init() {
+  try {
+    showApp(await library.initialize());
+    copyPreviousCards();
+  } catch (error) {
     byId('app-shell').classList.add('hidden');
-    byId('boot-screen').innerHTML = '<p>Could not open your workspace. Check your connection and allow cookies, then try again.</p><button class="button button-primary" type="button" data-action="continue-guest">Try again</button>';
+    byId('boot-screen').classList.remove('hidden');
+    byId('boot-screen').innerHTML = `<p>${escapeHtml(error.message)}</p><button class="button button-primary" type="button" data-action="retry-storage">Try again</button>`;
   }
 }
 
+// Refresh summaries when returning to a tab that may have been edited elsewhere.
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && state.profile && !state.study && !document.querySelector('dialog[open]')) {
+    refreshDecks().catch((error) => toast(error.message, 'error'));
+    if (state.currentDeck) openDeck(state.currentDeck.id);
+  }
+});
+window.addEventListener('online', copyPreviousCards);
 init();

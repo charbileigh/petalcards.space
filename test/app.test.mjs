@@ -1,204 +1,91 @@
 import assert from 'node:assert/strict';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { existsSync, mkdtempSync, rmSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { DatabaseSync } from 'node:sqlite';
 import { after, before, test } from 'node:test';
 import { startServer } from '../src/server.mjs';
+import { hashSessionToken } from '../src/security.mjs';
 
-let instance;
-let baseUrl;
-let cookie;
-let temporaryDirectory;
-
-async function call(path, { method = 'GET', body, session = cookie, origin } = {}) {
-  const headers = { Accept: 'application/json' };
-  if (body !== undefined) headers['Content-Type'] = 'application/json';
-  if (session) headers.Cookie = session;
-  if (origin) headers.Origin = origin;
-  const response = await fetch(`${baseUrl}${path}`, {
-    method,
-    headers,
-    body: body === undefined ? undefined : JSON.stringify(body),
-  });
-  const contentType = response.headers.get('content-type') || '';
-  const payload = contentType.includes('application/json') ? await response.json() : await response.text();
-  return { response, payload };
-}
-
+let instance, baseUrl, directory, databasePath;
 before(async () => {
-  temporaryDirectory = mkdtempSync(join(tmpdir(), 'petalcards-test-'));
-  instance = await startServer({ host: '127.0.0.1', port: 0, dbPath: join(temporaryDirectory, 'test.sqlite') });
+  directory = mkdtempSync(join(tmpdir(), 'petalcards-test-'));
+  databasePath = join(directory, 'old.sqlite');
+  instance = await startServer({ host: '127.0.0.1', port: 0, dbPath: databasePath });
   baseUrl = `http://127.0.0.1:${instance.address.port}`;
 });
-
 after(async () => {
   await new Promise((resolve) => instance.server.close(resolve));
   instance.db.close();
-  rmSync(temporaryDirectory, { recursive: true, force: true });
+  rmSync(directory, { recursive: true, force: true });
 });
 
-test('health check and private bootstrap', async () => {
-  const health = await call('/api/health');
-  assert.equal(health.response.status, 200);
-  assert.equal(health.payload.ok, true);
-  const privateRequest = await call('/api/bootstrap', { session: null });
-  assert.equal(privateRequest.response.status, 401);
-});
-
-test('serves the browser application and its assets', async () => {
-  const page = await fetch(`${baseUrl}/`);
+test('opens with no account and serves every offline/install asset with a real MIME type', async () => {
+  const page = await fetch(baseUrl);
   assert.equal(page.status, 200);
-  assert.match(page.headers.get('content-security-policy'), /default-src 'self'/);
-  assert.match(await page.text(), /id="study-view"/);
-  const script = await fetch(`${baseUrl}/app.js`);
-  assert.equal(script.status, 200);
-  assert.match(script.headers.get('content-type'), /text\/javascript/);
-  assert.match(await script.text(), /function flipCard/);
-});
-
-test('registers a native account and opens the starter deck', async () => {
-  const result = await call('/api/auth/register', {
-    method: 'POST',
-    body: { name: 'Aster Vale', email: 'aster@example.com', password: 'correct horse petal' },
-    session: null,
-  });
-  assert.equal(result.response.status, 201);
-  cookie = result.response.headers.get('set-cookie').split(';')[0];
-  assert.equal(result.payload.user.email, 'aster@example.com');
-  assert.equal(result.payload.theme, 'pink');
-  assert.equal(result.payload.decks.length, 1);
-  assert.equal(result.payload.decks[0].cardCount, 3);
-
-  const deck = await call(`/api/decks/${result.payload.decks[0].id}`);
-  assert.equal(deck.response.status, 200);
-  assert.equal(deck.payload.deck.cards.length, 3);
-});
-
-test('creates a deck and card, then reviews that card', async () => {
-  const createdDeck = await call('/api/decks', {
-    method: 'POST',
-    body: { title: 'Botany', description: 'Leaves and roots', accent: 'mint' },
-  });
-  assert.equal(createdDeck.response.status, 201);
-  const deckId = createdDeck.payload.deck.id;
-
-  const createdCard = await call(`/api/decks/${deckId}/cards`, {
-    method: 'POST',
-    body: { front: 'What is xylem?', back: 'Tissue that moves water upward.', hint: 'Think stems.' },
-  });
-  assert.equal(createdCard.response.status, 201);
-  const cardId = createdCard.payload.card.id;
-
-  const beforeReview = await call(`/api/decks/${deckId}`);
-  assert.equal(beforeReview.payload.deck.cards[0].reviewCount, 0);
-  assert.equal(beforeReview.payload.deck.dueCount, 1);
-
-  const review = await call(`/api/cards/${cardId}/review`, {
-    method: 'POST',
-    body: { rating: 'good' },
-  });
-  assert.equal(review.response.status, 200);
-  assert.equal(review.payload.card.reviewCount, 1);
-  assert.equal(review.payload.card.lastRating, 'good');
-  assert.ok(review.payload.card.dueAt > Date.now());
-
-  const afterReview = await call(`/api/decks/${deckId}`);
-  assert.equal(afterReview.payload.deck.dueCount, 0);
-});
-
-test('downloads cards as CSV and JSON', async () => {
-  const decks = await call('/api/decks');
-  const deck = decks.payload.decks.find((item) => item.title === 'Botany');
-  const csv = await call(`/api/decks/${deck.id}/export?format=csv`);
-  assert.equal(csv.response.status, 200);
-  assert.match(csv.response.headers.get('content-disposition'), /botany\.csv/);
-  assert.match(csv.payload, /What is xylem\?/);
-
-  const jsonExport = await call(`/api/decks/${deck.id}/export?format=json`);
-  assert.equal(jsonExport.response.status, 200);
-  assert.equal(jsonExport.payload.deck.cards[0].front, 'What is xylem?');
-});
-
-test('blocks cross-site writes and isolates accounts', async () => {
-  const blocked = await call('/api/decks', {
-    method: 'POST',
-    body: { title: 'Blocked' },
-    origin: 'https://attacker.example',
-  });
-  assert.equal(blocked.response.status, 403);
-
-  const firstDecks = await call('/api/decks');
-  const privateDeckId = firstDecks.payload.decks[0].id;
-  const second = await call('/api/auth/register', {
-    method: 'POST',
-    body: { name: 'Moss Reed', email: 'moss@example.com', password: 'another safe password' },
-    session: null,
-  });
-  const secondCookie = second.response.headers.get('set-cookie').split(';')[0];
-  const hiddenDeck = await call(`/api/decks/${privateDeckId}`, { session: secondCookie });
-  assert.equal(hiddenDeck.response.status, 404);
-});
-
-test('persists a dark theme and supports sign out/sign in', async () => {
-  const theme = await call('/api/preferences', { method: 'PATCH', body: { theme: 'purple' } });
-  assert.equal(theme.payload.theme, 'purple');
-  const bootstrap = await call('/api/bootstrap');
-  assert.equal(bootstrap.payload.theme, 'purple');
-
-  const logout = await call('/api/auth/logout', { method: 'POST', body: {} });
-  assert.equal(logout.response.status, 204);
-  cookie = null;
-  const signedOut = await call('/api/bootstrap', { session: null });
-  assert.equal(signedOut.response.status, 401);
-
-  const login = await call('/api/auth/login', {
-    method: 'POST',
-    body: { email: 'aster@example.com', password: 'correct horse petal' },
-    session: null,
-  });
-  assert.equal(login.response.status, 200);
-  cookie = login.response.headers.get('set-cookie').split(';')[0];
-});
-
-test('guest workspaces support saved cards, reviews, downloads and browser isolation', async () => {
-  const guest = await call('/api/guest', { method: 'POST', body: {}, session: null });
-  assert.equal(guest.response.status, 201);
-  assert.equal(guest.payload.user.guest, true);
-  assert.equal(guest.payload.user.email, null);
-  const header = guest.response.headers.get('set-cookie');
-  assert.match(header, /HttpOnly/);
-  assert.match(header, /SameSite=Lax/);
-  const session = header.split(';')[0];
-  const deck = await call('/api/decks', { method: 'POST', body: { title: 'Guest notes' }, session });
-  const id = deck.payload.deck.id;
-  const card = await call(`/api/decks/${id}/cards`, { method: 'POST', body: { front: 'Question', back: 'Answer' }, session });
-  const cardId = card.payload.card.id;
-  assert.equal(card.response.status, 201);
-  assert.equal((await call(`/api/cards/${cardId}/review`, { method: 'POST', body: { rating: 'good' }, session })).response.status, 200);
-  await call('/api/preferences', { method: 'PATCH', body: { theme: 'blue' }, session });
-  const reopen = await call('/api/bootstrap', { session });
-  assert.equal(reopen.payload.user.id, guest.payload.user.id);
-  assert.equal(reopen.payload.theme, 'blue');
-  assert.ok(reopen.payload.decks.some((item) => item.id === id));
-  assert.match(reopen.response.headers.get('set-cookie'), /Max-Age=31536000/);
-  assert.equal((await call(`/api/decks/${id}`, { session })).payload.deck.cards[0].reviewCount, 1);
-  assert.equal((await call(`/api/decks/${id}/export?format=json`, { session })).payload.deck.cards[0].back, 'Answer');
-  assert.match((await call(`/api/decks/${id}/export?format=csv`, { session })).payload, /Question,Answer/);
-  const again = await call('/api/guest', { method: 'POST', body: {}, session });
-  assert.equal(again.payload.user.id, guest.payload.user.id);
-  const other = await call('/api/guest', { method: 'POST', body: {}, session: null });
-  const otherSession = other.response.headers.get('set-cookie').split(';')[0];
-  for (const method of ['GET', 'PATCH', 'DELETE']) {
-    const result = await call(`/api/decks/${id}`, { method, session: otherSession, ...(method === 'GET' ? {} : { body: { title: 'Forbidden' } }) });
-    assert.equal(result.response.status, 404);
+  assert.doesNotMatch(await page.text(), /login-form|register-form|type="password"|type="email"/);
+  assert.equal(page.headers.get('set-cookie'), null);
+  assert.equal(existsSync(databasePath), false, 'opening the app must not create a server database');
+  const resources = {
+    '/app.js': 'text/javascript', '/storage.js': 'text/javascript', '/downloads.js': 'text/javascript',
+    '/pwa.js': 'text/javascript', '/sw.js': 'text/javascript', '/styles.css': 'text/css',
+    '/manifest.webmanifest': 'application/manifest+json', '/icons/icon-192.png': 'image/png', '/icons/icon-512.png': 'image/png',
+  };
+  for (const [path, type] of Object.entries(resources)) {
+    const response = await fetch(baseUrl + path);
+    assert.equal(response.status, 200, path);
+    assert.ok(response.headers.get('content-type').startsWith(type), path);
+    assert.equal(response.headers.get('cache-control'), 'no-cache');
+    assert.ok((await response.arrayBuffer()).byteLength > 0);
   }
-  assert.equal((await call(`/api/cards/${cardId}/review`, { method: 'POST', body: { rating: 'easy' }, session: otherSession })).response.status, 404);
-  assert.equal((await call('/api/guest', { method: 'POST', body: {}, session: null, origin: 'https://attacker.example' })).response.status, 403);
-  // Account sign-in takes priority; signing out preserves the separate guest cookie.
-  const combined = `${cookie}; ${session}`;
-  assert.equal((await call('/api/bootstrap', { session: combined })).payload.user.guest, false);
-  await call('/api/auth/logout', { method: 'POST', body: {}, session: combined });
-  assert.equal((await call('/api/bootstrap', { session })).payload.user.id, guest.payload.user.id);
-  const password = await call('/api/account/password', { method: 'POST', body: {}, session });
-  assert.equal(password.response.status, 403);
+  const missing = await fetch(baseUrl + '/missing.js');
+  assert.equal(missing.status, 404, 'missing scripts must not return cached HTML');
+  const manifest = await (await fetch(baseUrl + '/manifest.webmanifest')).json();
+  assert.equal(manifest.display, 'standalone');
+  for (const size of [192, 512]) {
+    const icon = readFileSync(new URL(`../public/icons/icon-${size}.png`, import.meta.url));
+    assert.equal(icon.readUInt32BE(16), size);
+    assert.equal(icon.readUInt32BE(20), size);
+  }
+});
+
+test('old login, registration, guest creation and account routes are disabled', async () => {
+  for (const path of ['/api/auth/login', '/api/auth/register', '/api/guest', '/api/account', '/api/decks']) {
+    assert.equal((await fetch(baseUrl + path, { method: 'POST', body: '{}' })).status, 405);
+  }
+  const health = await (await fetch(baseUrl + '/api/health')).json();
+  assert.equal(health.storage, 'device');
+});
+
+test('legacy recovery is read-only and restricted to an existing unexpired session', async () => {
+  const db = new DatabaseSync(databasePath);
+  db.exec(`
+    CREATE TABLE users (id TEXT PRIMARY KEY);
+    CREATE TABLE sessions (token_hash TEXT, user_id TEXT, expires_at INTEGER);
+    CREATE TABLE decks (id TEXT, user_id TEXT, title TEXT, description TEXT, accent TEXT, created_at INTEGER, updated_at INTEGER);
+    CREATE TABLE cards (id TEXT, deck_id TEXT, front TEXT, back TEXT, hint TEXT, position INTEGER, created_at INTEGER);
+    CREATE TABLE card_progress (user_id TEXT, card_id TEXT, due_at INTEGER, interval_days REAL, ease REAL, review_count INTEGER, correct_count INTEGER, last_rating TEXT);
+    INSERT INTO users VALUES ('one'), ('two');
+    INSERT INTO decks VALUES ('d1','one','My old cards','','rose',1,1), ('d2','two','Private to someone else','','rose',1,1);
+    INSERT INTO cards VALUES ('c1','d1','Old question','Old answer','',0,1);
+    INSERT INTO card_progress VALUES ('one','c1',123456,3,2.2,7,5,'good');
+  `);
+  const insert = db.prepare('INSERT INTO sessions VALUES (?, ?, ?)');
+  insert.run(hashSessionToken('valid-token'), 'one', Date.now() + 60000);
+  insert.run(hashSessionToken('expired-token'), 'two', Date.now() - 1);
+  db.close();
+  const before = readFileSync(databasePath);
+  for (const cookie of ['', 'petalcards_session=invalid', 'petalcards_guest=expired-token']) {
+    const result = await (await fetch(baseUrl + '/api/legacy-library', { headers: { Cookie: cookie } })).json();
+    assert.deepEqual(result.libraries, []);
+  }
+  const response = await fetch(baseUrl + '/api/legacy-library', { headers: { Cookie: 'petalcards_session=valid-token' } });
+  const { libraries } = await response.json();
+  assert.equal(response.headers.get('cache-control'), 'no-store');
+  assert.equal(libraries.length, 1);
+  assert.equal(libraries[0].decks.length, 1);
+  assert.equal(libraries[0].decks[0].cards[0].reviewCount, 7);
+  assert.equal(libraries[0].decks[0].cards[0].ease, 2.2);
+  assert.equal((await fetch(baseUrl + '/api/legacy-library', { headers: { Cookie: 'petalcards_session=valid-token', Origin: 'https://untrusted.example' } })).status, 403);
+  assert.deepEqual(readFileSync(databasePath), before);
 });
