@@ -1,17 +1,22 @@
 {
   "name": "petalcards",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
   "type": "module",
-  "description": "A private, self-hosted flashcard app with spaced review.",
+  "description": "Installable, offline flashcards with device storage and no accounts.",
   "engines": {
     "node": ">=24.0.0"
   },
   "scripts": {
     "start": "node src/server.mjs",
     "dev": "node --watch src/server.mjs",
-    "test": "node --test",
-    "check": "node --check src/server.mjs && node --check src/database.mjs && node --check src/security.mjs && node --check public/app.js"
+    "test": "node --test test/*.test.mjs",
+    "check": "node --check src/server.mjs && node --check src/database.mjs && node --check src/security.mjs && node --check public/app.js && node --check public/storage.js && node --check public/downloads.js && node --check public/pwa.js && node --check public/sw.js",
+    "test:browser": "node test/offline.browser.mjs",
+    "preview:build": "node scripts/build-preview.mjs"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "playwright": "1.62.1"
+  }
 }

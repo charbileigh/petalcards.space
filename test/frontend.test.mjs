@@ -16,7 +16,8 @@ test('every frontend ID lookup exists in the page and IDs are unique', () => {
   for (const id of lookups) assert.ok(available.has(id), `app.js expects missing #${id}`);
 });
 
-test('the app is not configured as a PWA', () => {
-  assert.doesNotMatch(html, /rel=["']manifest["']/i);
-  assert.doesNotMatch(script, /serviceWorker\.register/);
+test('account controls are absent and installation is connected', () => {
+  assert.doesNotMatch(html + script, /login-form|register-form|password-form|type="email"|type="password"|\/api\/auth\//);
+  assert.match(html, /rel="manifest"/);
+  assert.match(html, /id="install-button"/);
 });
